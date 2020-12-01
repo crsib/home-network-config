@@ -35,8 +35,8 @@ services:
     sysctls:
       net.ipv4.ip_unprivileged_port_start: 0
     environment:
-      DB_URI: mongodb://mongo/unifi
-      STATDB_URI: mongodb://mongo/unifi_stat
+      DB_URI: mongodb://unifi_mongo/unifi
+      STATDB_URI: mongodb://unifi_mongo/unifi_stat
       DB_NAME: unifi
     ports:
       - "3478:3478/udp" # STUN
@@ -59,7 +59,8 @@ services:
     container_name: unbound
     image: mvance/unbound:latest
     networks:
-      - pihole
+      pihole:
+        ipv4_address: 10.0.0.2
     volumes:
       - ./unbound/conf:/opt/unbound/etc/unbound/
   pihole:
@@ -73,7 +74,7 @@ services:
       - "443:443/tcp"
     environment:
       - TZ='Europe/Moscow'
-      - DNS1='127.0.0.1#5053'
+      - DNS1='10.0.0.2#5053'
       - DNS2=''
     # Volumes store your data between container upgrades
     volumes:
@@ -88,7 +89,8 @@ services:
       - 1.1.1.1
     restart: unless-stopped
     networks:
-      - pihole
+      pihole:
+        ipv4_address: 10.0.0.3
 volumes:
   unifi_db:
   unifi_dbcfg:
@@ -102,3 +104,7 @@ volumes:
 networks:
   unifi:
   pihole:
+    driver: bridge
+    ipam: 
+      config: 
+        - subnet: 10.0.0.0/29
