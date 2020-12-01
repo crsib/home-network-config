@@ -30,7 +30,7 @@ services:
       - unifi_init:/unifi/init.d
       - unifi_run:/var/run/unifi
       # Mount local folder for backups and autobackups
-      - ./unifi_backup:/unifi/data/backup
+      - ~/unifi_backup:/unifi/data/backup
     user: unifi
     sysctls:
       net.ipv4.ip_unprivileged_port_start: 0
@@ -60,7 +60,7 @@ services:
     image: mvance/unbound:latest
     networks:
       pihole:
-        ipv4_address: 10.0.0.2
+        ipv4_address: 192.168.254.2
     volumes:
       - ./unbound/conf:/opt/unbound/etc/unbound/
   pihole:
@@ -73,9 +73,11 @@ services:
       - "80:80/tcp"
       - "443:443/tcp"
     environment:
+      - ServerIP=192.168.254.3
       - TZ='Europe/Moscow'
-      - DNS1='10.0.0.2#5053'
+      - DNS1='192.168.254.2#5053'
       - DNS2=''
+      - WEBPASSWORD=${PIHOLE_WEB_PASSWORD:-piadmin}
     # Volumes store your data between container upgrades
     volumes:
       - '~/pihole/pihole/:/etc/pihole/'
@@ -90,7 +92,9 @@ services:
     restart: unless-stopped
     networks:
       pihole:
-        ipv4_address: 10.0.0.3
+        ipv4_address: 192.168.254.3
+    depends_on: 
+       - unbound
 volumes:
   unifi_db:
   unifi_dbcfg:
@@ -107,4 +111,4 @@ networks:
     driver: bridge
     ipam: 
       config: 
-        - subnet: 10.0.0.0/29
+        - subnet: 192.168.254.0/29
