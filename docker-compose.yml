@@ -120,9 +120,6 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TIMEZONE}
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
       - ~/configs/heimdall:/config
 
@@ -180,6 +177,36 @@ services:
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+
+  swag:
+    image: ghcr.io/linuxserver/swag
+    container_name: swag
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+      - URL=local.crsib.me
+      - SUBDOMAINS=wildcard
+      - VALIDATION=dns
+      - DNSPLUGIN=cloudflare
+      - EMAIL=vedenko@gmail.com
+    volumes:
+      - ./swag:/config
+    ports:
+      - 443:443
+      - 80:80
+    restart: always
+
+  authelia:
+    image: authelia/authelia:4.21.0
+    container_name: authelia
+    environment:
+      - TZ=${TIMEZONE}
+    volumes:
+      - ~/authelia:/config
+    restart: always
 volumes:
   unifi_db:
   unifi_dbcfg:
