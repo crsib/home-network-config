@@ -71,8 +71,8 @@ services:
       - "53:53/tcp"
       - "53:53/udp"
       - "67:67/udp"
-      - "8080:8080/tcp"
-      - "8043:8043/tcp"
+      - "8180:8080/tcp"
+      - "8143:8043/tcp"
     environment:
       - ServerIP=192.168.254.3
       - TZ=$${TIMEZONE}
