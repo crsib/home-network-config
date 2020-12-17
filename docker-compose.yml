@@ -135,9 +135,9 @@ services:
       - TZ=${TIMEZONE}
       - TRANSMISSION_WEB_HOME=/combustion-release/
     volumes:
-      - <path to data>:/config
-      - <path to downloads>:/downloads
-      - <path to watch folder>:/watch
+      - ~/configs/transmission:/config
+      - ${MEDIA_DIRECTORY}:/downloads
+      - ${MEDIA_DIRECTORY}/watch:/watch
     ports:
       - 9091:9091
       - 51413:51413
