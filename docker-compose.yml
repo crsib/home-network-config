@@ -97,18 +97,18 @@ services:
     depends_on: 
        - unbound
 
-    plex:
-      container_name: plex
-      image: plexinc/pms-docker:plexpass
-      restart: always
-      environment:
-        - TZ=Europe/Moscow
-        - ALLOWED_NETWORKS=192.168.0.0/16,172.16.0.0/16
-      network_mode: host
-      volumes:
-        - ~/plex/config:/config
-        - ~/plex/transcode:/transcode
-        - ~/data:/data
+  plex:
+    container_name: plex
+    image: plexinc/pms-docker:plexpass
+    restart: always
+    environment:
+      - TZ=Europe/Moscow
+      - ALLOWED_NETWORKS=192.168.0.0/16,172.16.0.0/16
+    network_mode: host
+    volumes:
+      - ~/plex/config:/config
+      - ~/plex/transcode:/transcode
+      - ~/data:/data
 volumes:
   unifi_db:
   unifi_dbcfg:
