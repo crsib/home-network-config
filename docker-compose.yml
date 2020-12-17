@@ -71,14 +71,14 @@ services:
       - "53:53/tcp"
       - "53:53/udp"
       - "67:67/udp"
-      - "80:80/tcp"
-      - "443:443/tcp"
+      - "8080:8080/tcp"
+      - "8043:8043/tcp"
     environment:
       - ServerIP=192.168.254.3
-      - TZ='Europe/Moscow'
+      - TZ=$${TIMEZONE}
       - DNS1='192.168.254.2#5053'
       - DNS2=''
-      - WEBPASSWORD=${PIHOLE_WEB_PASSWORD:-piadmin}
+      - WEBPASSWORD=${PIHOLE_WEB_PASSWORD}
     # Volumes store your data between container upgrades
     volumes:
       - '~/pihole/pihole/:/etc/pihole/'
@@ -102,13 +102,84 @@ services:
     image: plexinc/pms-docker:plexpass
     restart: always
     environment:
-      - TZ=Europe/Moscow
+      - TZ=${TIMEZONE}
       - ALLOWED_NETWORKS=192.168.0.0/16,172.16.0.0/16
     network_mode: host
     volumes:
       - ~/plex/config:/config
-      - ~/plex/transcode:/transcode
-      - ~/data:/data
+      - ${PLEX_TRANSCODE_DIRECTORY}:/transcode
+      - ${MEDIA_DIRECTORY}:/data
+      - PLEX_UID=${PUID}
+      - PLEX_GID=${PGID}
+
+  heimdall:
+    image: linuxserver/heimdall
+    container_name: heimdall
+    restart: always
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+    ports:
+      - "${HEIMDALL_PORT}:80"
+      - "${HEIMDALL_SSL_PORT}:443"
+    volumes:
+      - ~/configs/heimdall:/config
+
+  transmission:
+    image: ghcr.io/linuxserver/transmission
+    container_name: transmission
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+      - TRANSMISSION_WEB_HOME=/combustion-release/
+    volumes:
+      - <path to data>:/config
+      - <path to downloads>:/downloads
+      - <path to watch folder>:/watch
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    restart: always
+
+  netdata:
+    image: netdata/netdata
+    container_name: netdata
+    hostname: local.crsib.me
+    ports:
+      - "19999:19999"
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+
+  portainer:
+    image: portainer/portainer
+    container_name: portainer
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/configs/portainer:/data
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    command: --cleanup
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 volumes:
   unifi_db:
   unifi_dbcfg:
