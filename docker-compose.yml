@@ -71,8 +71,6 @@ services:
       - "53:53/tcp"
       - "53:53/udp"
       - "67:67/udp"
-      - "8180:80/tcp"
-      - "8143:443/tcp"
     environment:
       - ServerIP=192.168.254.3
       - TZ=$${TIMEZONE}
@@ -206,7 +204,22 @@ services:
       - TZ=${TIMEZONE}
     volumes:
       - ~/authelia:/config
+    expose:
+      - 9091
     restart: always
+
+  authelia_redis:
+    image: redis:alpine
+    container_name: authelia_redis
+    volumes:
+      - authelia_redis_db:/data
+    networks:
+      - net
+    expose:
+      - 6379
+    restart: unless-stopped
+    environment:
+      - TZ=${TIMEZONE}
 volumes:
   unifi_db:
   unifi_dbcfg:
@@ -216,6 +229,7 @@ volumes:
   unifi_init:
   unifi_dir:
   unifi_run:
+  authelia_redis_db:
 
 networks:
   unifi:
