@@ -213,8 +213,6 @@ services:
     container_name: authelia_redis
     volumes:
       - authelia_redis_db:/data
-    networks:
-      - net
     expose:
       - 6379
     restart: unless-stopped
