@@ -21,6 +21,7 @@ services:
     init: true
     networks:
       - unifi
+      - default
     restart: always
     volumes:
       - unifi_dir:/unifi
@@ -73,7 +74,7 @@ services:
       - "67:67/udp"
     environment:
       - ServerIP=192.168.254.3
-      - TZ=$${TIMEZONE}
+      - TZ=${TIMEZONE}
       - DNS1='192.168.254.2#5053'
       - DNS2=''
       - WEBPASSWORD=${PIHOLE_WEB_PASSWORD}
@@ -92,12 +93,13 @@ services:
     networks:
       pihole:
         ipv4_address: 192.168.254.3
+      default:
     depends_on: 
        - unbound
 
   plex:
     container_name: plex
-    image: plexinc/pms-docker:plexpass
+    image: linuxserver/plex:latest
     restart: always
     environment:
       - TZ=${TIMEZONE}
@@ -106,9 +108,15 @@ services:
     volumes:
       - ~/plex/config:/config
       - ${PLEX_TRANSCODE_DIRECTORY}:/transcode
-      - ${MEDIA_DIRECTORY}:/data
-      - PLEX_UID=${PUID}
-      - PLEX_GID=${PGID}
+      - ${MEDIA_DIRECTORY}/Films:/movies
+      - ${MEDIA_DIRECTORY}/Series:/tv
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - VERSION=docker
+      - PLEX_CLAIM=${PLEX_CLAIM}
+    devices:
+      - /dev/dri:/dev/dri
 
   heimdall:
     image: linuxserver/heimdall
@@ -122,17 +130,22 @@ services:
       - ~/configs/heimdall:/config
 
   transmission:
-    image: ghcr.io/linuxserver/transmission
+    image: haugene/transmission-openvpn
     container_name: transmission
+    cap_add:
+      - NET_ADMIN
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TIMEZONE}
-      - TRANSMISSION_WEB_HOME=/combustion-release/
+      - TRANSMISSION_WEB_UI=transmission-web-control
+      - OPENVPN_PROVIDER=PROTONVPN
+      - OPENVPN_USERNAME=${PROTON_USER}
+      - OPENVPN_PASSWORD=${PROTON_PASSWORD}
+      - OPENVPN_CONFIG=se-01.protonvpn.com.udp,se-02.protonvpn.com.udp,se-03.protonvpn.com.udp,se-04.protonvpn.com.udp
+      - LOCAL_NETWORK=192.168.0.0/16
     volumes:
-      - ~/configs/transmission:/config
-      - ${MEDIA_DIRECTORY}:/downloads
-      - ${MEDIA_DIRECTORY}/watch:/watch
+      - ${MEDIA_DIRECTORY}:/data
     ports:
       - 9091:9091
       - 51413:51413
@@ -207,6 +220,8 @@ services:
     expose:
       - 9091
     restart: always
+    depends_on:
+      - authelia_redis
 
   authelia_redis:
     image: redis:alpine
