@@ -18,11 +18,12 @@ _Last verified: 2026-06-14._
 
 | Service | Runtime | Ports | Notes |
 |---------|---------|-------|-------|
-| **nginx** (reverse proxy) | native (systemd) | `80`, `443` | Fronts apps as `*.local.crsib.me`; LE cert `local.crsib.me`. See [reverse proxy doc](../services/reverse-proxy-and-certs.md) |
+| **nginx** (reverse proxy) | native (systemd) | `80`, `443` (TCP+UDP) | Fronts `local.crsib.me` & `headscale.crsib.me`; LE cert via certbot/nginx. Also a `stream` block relaying **UDP/443 → external Aeza VPS** `104.238.29.139:55444`. See [reverse proxy doc](../services/reverse-proxy-and-certs.md) |
+| **Headscale** | native (systemd) | (via nginx `headscale.crsib.me`) | Self-hosted Tailscale control plane. Mesh `100.64.0.0/10` / `fd7a:115c:a1e0::/48`. Current node: `dvedenko-24` = `.13`. See [overlays](../services/overlay-and-remote-access.md) |
 | **UniFi Network** controller | native (Java + MongoDB) | `8443` GUI, `8080` inform, `8843`/`8880` portal, `6789` speedtest, `3478/udp` STUN, Mongo `27117` | Manages UniFi gear (e.g. ap-hallway) |
 | **UISP / UNMS** | Docker | nginx `81`/`8089`/`9080`/`9443`, netflow `2055/udp` | Manages the [EdgeRouter](edgerouter-4.md). Stack: `unms`, `ucrm`, `unms-netflow`, `unms-nginx`, `unms-rabbitmq`, `unms-postgres`, `unms-siridb`, `unms-fluentd` (images `ubnt/unms:2.4.188`, `ubnt/unms-crm:4.4.30`) |
 | **Nextcloud** | Docker Compose | web `9876` | Stack: `nextcloud-web-1` (nginx:alpine), `nextcloud-app-1` (nextcloud:fpm-alpine), `nextcloud-cron-1`, `nextcloud-redis-1`, `nextcloud-db-1` (mariadb:lts) |
-| **MicroK8s** | snap `v1.32.13` | API `16443`, kubelet `10250`, cluster-agent `25000`, dqlite `19001`, … | Single-node Kubernetes |
+| **MicroK8s** | snap `v1.32.13` | API `16443`, kubelet `10250`, cluster-agent `25000`, dqlite `19001`, … | Single-node Kubernetes — **idle**: only `kube-system` pods (calico, coredns), no user workloads as of 2026-06-14 |
 | **ZeroTier** | native | `9993/udp` | Node `09fe4d687b`, v1.16.1, ONLINE |
 | **zrok** (OpenZiti) | Docker | — | Public share tunnels: `unms-zrok-share`, `router-zrok-share`, `uisp-zrok-share` |
 | **SOCKS5 proxy** | native | `1080` | Outbound proxy |
@@ -53,12 +54,15 @@ ssh dvedenko@192.168.1.2 \
 ## Reachable from off-LAN
 
 Selected services are exposed externally via the nginx reverse proxy
-(`local.crsib.me`, port-forwarded by the router) and via **zrok** share tunnels.
-See [overlay & remote access](../services/overlay-and-remote-access.md).
+(`local.crsib.me`, port-forwarded by the router), the **Headscale**/Tailscale mesh,
+and **zrok** share tunnels. See
+[overlay & remote access](../services/overlay-and-remote-access.md).
+
+> The router also forwards `32400` (Plex) and `51413` (Transmission) to this host,
+> but **nothing listens** on those ports — the forwards are stale leftovers.
 
 ## TODO / to verify
 
 - [ ] Pin the exact Compose project directories for Nextcloud / UISP / zrok.
-- [ ] Confirm which apps the nginx reverse proxy publishes (site-confs inventory).
-- [ ] Document what runs on MicroK8s (namespaces / workloads), if anything beyond idle.
+- [ ] Identify the app on `127.0.0.1:8081` fronted by nginx.
 - [ ] Record the ZeroTier network ID(s) this node has joined.

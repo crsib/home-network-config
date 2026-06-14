@@ -22,6 +22,7 @@ _Last verified: 2026-06-14._
 | **FortiClient VPN** (`2GIS`) | tunnel `fctvpn*` | Corp VPN, user `d.vedenko`. CLI at `/usr/bin/forticlient`. Corp DNS `10.54.68.68` / `10.54.129.129` reachable only through the tunnel |
 | **RustDesk** (self-hosted) | `21115`–`21119` (hbbs/hbbr) | Box ID **`255246947`**. Server + client both on this box; relay advertised as `local.crsib.me`. **LAN clients must connect via `192.168.1.13`** (UDP hairpin caveat) |
 | **microsocks** (SOCKS5) | `1080` | Outbound proxy |
+| **Tailscale** (Headscale mesh) | `tailscale0` | Node `dvedenko-24`, `100.64.0.1` / `fd7a:115c:a1e0::1`. Control plane is Headscale on [.2](home-controller.md) (`headscale.crsib.me`). Currently the only mesh node |
 | **systemd-resolved** | `192.168.1.13:53`, `127.0.0.54:53` | DNS stub, LAN-visible |
 | **iperf3** | `5201` | Throughput testing |
 | **CUPS** | `631` | Printing stack |

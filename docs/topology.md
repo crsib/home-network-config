@@ -18,21 +18,22 @@ graph TD
     ER -->|bond0.3| VLAN3
 
     subgraph LAN["Main LAN — 192.168.1.0/24"]
-        HC["home-controller · .2<br/>Ubuntu 24.04<br/>nginx · UniFi · UISP · Nextcloud<br/>MicroK8s · ZeroTier · zrok"]
-        FB["dvedenko-24.04-net · .13<br/>Ubuntu 24.04<br/>FortiClient VPN · RustDesk<br/>microsocks · iperf · resolved"]
-        AP["ap-hallway · .3 (UniFi AP)"]
-        PR["printer · .10"]
+        HC["home-controller · .2<br/>Ubuntu 24.04<br/>nginx · UniFi · UISP · Nextcloud<br/>Headscale · MicroK8s · ZeroTier · zrok"]
+        FB["dvedenko-24.04-net · .13<br/>Ubuntu 24.04<br/>FortiClient VPN · RustDesk<br/>Tailscale · microsocks · iperf"]
+        AP["UniFi APs<br/>U6-Lite .219 · U6-Plus .243"]
+        PR["Canon printer · .10"]
         WS["Windows workstation<br/>(forti-tray host)"]
     end
 
-    subgraph VLAN2["VLAN 2 — 192.168.2.0/24"]
-        V2[("gw 192.168.2.1<br/>purpose: TBD")]
+    subgraph VLAN2["VLAN 2 · 192.168.2.0/24 · 'Devices'"]
+        V2[("IoT · TVs · Xbox")]
     end
-    subgraph VLAN3["VLAN 3 — 192.168.3.0/24"]
-        V3[("gw 192.168.3.1<br/>purpose: TBD")]
+    subgraph VLAN3["VLAN 3 · 192.168.3.0/24"]
+        V3[("idle — no leases<br/>purpose: TBD")]
     end
 
-    HC -.->|manages| ER
+    HC -.->|UISP manages| ER
+    HC -.->|Headscale mesh 100.64.0.1| FB
 ```
 
 ## WAN
@@ -48,9 +49,12 @@ graph TD
 
 | Network | Gateway | Interface | Role |
 |---------|---------|-----------|------|
-| `192.168.1.0/24` | `192.168.1.1` | `bond0` (eth2+eth3 bonded) | **Main LAN** — all documented hosts live here |
-| `192.168.2.0/24` | `192.168.2.1` | `bond0.2` | VLAN 2 — _purpose TBD_ |
-| `192.168.3.0/24` | `192.168.3.1` | `bond0.3` | VLAN 3 — _purpose TBD_ |
+| `192.168.1.0/24` | `192.168.1.1` | `bond0` (eth2+eth3 bonded) | **Main LAN** — servers, workstations, APs, most clients |
+| `192.168.2.0/24` | `192.168.2.1` | `bond0.2` | **VLAN 2 "Devices"** — IoT, smart TVs, game consoles |
+| `192.168.3.0/24` | `192.168.3.1` | `bond0.3` | VLAN 3 — provisioned, **no active leases** (purpose TBD) |
+
+A **second WAN** (`eth1`) is provisioned on the router but currently down — see
+[hosts/edgerouter-4.md](hosts/edgerouter-4.md).
 
 `eth1` is **down** (unused). DHCP scopes, inter-VLAN firewall policy, and
 port-forwards live in the EdgeRouter config — see
@@ -65,24 +69,35 @@ SSH config or historical records and were not re-confirmed in the last sweep.
 |----|----------|-------------|------|----------|
 | `192.168.1.1` | EdgeRouter-4 | EdgeOS 3.0.1 (Debian 9, MIPS64) | Router / firewall / DNS / DHCP | `ubnt` |
 | `192.168.1.2` | home-controller | Ubuntu 24.04.4 (kernel 6.8) | Services host | `dvedenko` |
-| `192.168.1.3` | ap-hallway | UniFi AP _(unverified)_ | Wi-Fi access point | — |
-| `192.168.1.10` | printer | Network printer _(unverified)_ | Printing | — |
+| `192.168.1.3` | _unidentified_ | MAC `b0:95:75:…` | **TBD** — not a UniFi AP | — |
+| `192.168.1.10` | printer | **Canon** printer (MAC `9c:93:4e:…`) | Printing | — |
 | `192.168.1.13` | dvedenko-24.04-net | Ubuntu 24.04.4 (kernel 6.17) | Remote-access / VPN box | `dvedenko` |
+| `192.168.1.219` | U6-Lite | UniFi AP (DHCP) | Wi-Fi | — |
+| `192.168.1.243` | U6-Plus | UniFi AP (DHCP) | Wi-Fi | — |
 | `192.168.1.17` | MacBook _(unverified)_ | macOS | Workstation | `dvedenko` |
 | `192.168.1.18` | MacBook-16 _(unverified)_ | macOS | Workstation | `d.vedenko` |
 | `192.168.1.127` | UbuntuStudio _(unverified)_ | Ubuntu | Workstation | `dvedenko` |
 | `192.168.1.165` | OrangePi _(unverified)_ | SBC | — | `dvedenko` |
 
-> The Windows workstation that hosts this repo and the `forti-tray` agent is also
-> on the main LAN (DHCP; IP not pinned here).
+> The main LAN has ~30 active DHCP clients (phones, smart-home gear, Yandex
+> stations, etc.); only infrastructure and pinned hosts are listed here. The
+> Windows workstation hosting this repo and `forti-tray` is also on the main LAN.
+> UniFi APs receive DHCP addresses (`.219`, `.243`) — the old static `ap-hallway`
+> at `.3` no longer applies.
 
 ## Overlay / off-LAN networks
 
 These ride on top of the physical LAN — details in
 [services/overlay-and-remote-access.md](services/overlay-and-remote-access.md).
 
+- **Headscale / Tailscale** — self-hosted control plane on `home-controller`
+  (`headscale.crsib.me`); mesh `100.64.0.0/10`. Node `dvedenko-24` = `.13` @
+  `100.64.0.1`.
 - **ZeroTier** — `home-controller` is a member (node `09fe4d687b`).
 - **zrok** (OpenZiti) — public share tunnels from `home-controller` for `unms`,
   `router`, and `uisp`.
 - **FortiClient VPN (`2GIS`)** — corporate tunnel terminated on `192.168.1.13`
   (`fctvpn*` interface; corp DNS `10.54.68.68` / `10.54.129.129`).
+- **Off-site UDP relay** — nginx on `.2` forwards inbound **UDP/443** to an external
+  Aeza VPS (`104.238.29.139:55444`); see
+  [services/reverse-proxy-and-certs.md](services/reverse-proxy-and-certs.md).

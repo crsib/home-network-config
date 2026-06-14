@@ -20,13 +20,45 @@ _Last verified: 2026-06-14._
 
 | Interface | State | Address | Role |
 |-----------|-------|---------|------|
-| `eth0` | UP | `83.243.71.58/28` | **WAN** (uplink to ISP) |
-| `eth1` | DOWN | — | unused |
+| `eth0` | UP | `83.243.71.58/28` | **WAN 1** (primary uplink) |
+| `eth1` | DOWN | — | **WAN 2** (secondary, dormant — NAT rules exist for `ADDRv4_eth1`) |
 | `eth2` | UP | — | LAN (bonded) |
 | `eth3` | UP | — | LAN (bonded) |
 | `bond0` | UP | `192.168.1.1/24` | **Main LAN** (eth2+eth3 LAG) |
-| `bond0.2` | UP | `192.168.2.1/24` | VLAN 2 |
-| `bond0.3` | UP | `192.168.3.1/24` | VLAN 3 |
+| `bond0.2` | UP | `192.168.2.1/24` | VLAN 2 — **"Devices"** (IoT / TVs / consoles) |
+| `bond0.3` | UP | `192.168.3.1/24` | VLAN 3 — provisioned, **no active leases** (purpose TBD) |
+
+Dual-WAN is configured (port-forward NAT has both `ADDRv4_eth0` and `ADDRv4_eth1`
+variants) but `eth1` is currently down, so only WAN 1 is live.
+
+## DHCP
+
+Active pools (from `show dhcp leases`, 2026-06-14):
+
+| Pool | Subnet | Used for |
+|------|--------|----------|
+| `LAN` | `192.168.1.0/24` | Main devices — workstations, phones, UniFi APs (U6-Lite `.219`, U6-Plus `.243`), Yandex stations, smart-home gear |
+| `Devices` | `192.168.2.0/24` | VLAN 2 — TVs (LG webOS), Xbox, misc IoT |
+| (VLAN 3) | `192.168.3.0/24` | No active leases observed |
+
+Static / non-DHCP hosts on the main LAN include `.1` (router), `.2`, `.13`,
+`.10` (Canon printer), and `.3` (unidentified — MAC `b0:95:75:…`, **not** a UniFi AP).
+
+## Port-forwards (DNAT)
+
+Captured from `iptables -t nat` (2026-06-14). Two mechanisms are in play — the UISP
+"port-forward" feature (`UBNT_PFOR_*`) and manual NAT rules (`VYATTA_DNAT`, comments
+`NAT-nn`):
+
+| External port (proto) | → Destination | Service |
+|-----------------------|---------------|---------|
+| `80`, `443` (tcp+udp) | `192.168.1.2` | nginx reverse proxy (+ UDP/443 relay) |
+| `21115`–`21117` (tcp+udp) | `192.168.1.13` | RustDesk (hbbs/hbbr) |
+| `32400` (tcp) | `192.168.1.2` | **stale** — Plex not running |
+| `51413` (tcp+udp) | `192.168.1.2` | **stale** — Transmission not running |
+
+`NAT-21..24`, `NAT-41`, `NAT-61` are the WAN-2 (`eth1`) duplicates of the above,
+inactive while `eth1` is down.
 
 ## Roles
 
@@ -63,6 +95,8 @@ show configuration commands | grep port-forward     # inside the EdgeOS shell
 
 ## TODO / to verify
 
-- [ ] Document VLAN 2 / VLAN 3 purposes and which switch ports / SSIDs map to them.
-- [ ] Capture the port-forward list (service → external port → internal host).
-- [ ] Record DHCP ranges and any static mappings.
+- [ ] Confirm VLAN 3's intended purpose (provisioned but idle) and which SSIDs /
+      switch ports map to VLAN 2 ("Devices") vs the main LAN.
+- [ ] Record DHCP ranges (start/stop) and reserved/static mappings.
+- [ ] Decide whether to drop the stale `32400` / `51413` port-forwards.
+- [ ] Identify the `.3` device (MAC `b0:95:75:b3:3f:00`).

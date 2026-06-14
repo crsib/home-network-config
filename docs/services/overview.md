@@ -12,7 +12,8 @@ _Last verified: 2026-06-14._
 | Routing / firewall / NAT | EdgeRouter-4 `.1` | — | EdgeOS | [router](../hosts/edgerouter-4.md) |
 | LAN DNS | EdgeRouter-4 `.1` | `53` | dnsmasq | [DNS](dns.md) |
 | DDNS (`local.crsib.me`) | EdgeRouter-4 `.1` | — | EdgeOS | [DNS](dns.md) |
-| nginx reverse proxy | home-controller `.2` | `80`, `443` | native | [reverse proxy](reverse-proxy-and-certs.md) |
+| nginx reverse proxy | home-controller `.2` | `80`, `443` (TCP+UDP) | native | [reverse proxy](reverse-proxy-and-certs.md) |
+| Headscale (Tailscale control) | home-controller `.2` | via `headscale.crsib.me` | native | [overlays](overlay-and-remote-access.md) |
 | UniFi Network controller | home-controller `.2` | `8443`, `8080`, `8843`, `8880`, `6789`, `3478/udp` | native | [controller](../hosts/home-controller.md) |
 | UISP / UNMS | home-controller `.2` | `9443`, `81`, `8089`, `9080`, `2055/udp` | Docker | [controller](../hosts/home-controller.md) |
 | Nextcloud | home-controller `.2` | `9876` | Docker | [controller](../hosts/home-controller.md) |
@@ -43,3 +44,7 @@ Netdata, Portainer, Watchtower, SWAG, Authelia) recorded in this repo's **git
 history** is **no longer the live setup** and should not be treated as current.
 DNS today is served by the EdgeRouter (and resolved on `.13`); the reverse proxy
 is native nginx on `.2`.
+
+Leftovers from that era still visible on the router: port-forwards for **Plex**
+(`32400`) and **Transmission** (`51413`) to `.2` remain configured but have **no
+backing service** — candidates for cleanup.

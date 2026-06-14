@@ -11,16 +11,30 @@ _Last verified: 2026-06-14._
 |------|---------------|-----|
 | `local.crsib.me` (DDNS → `83.243.71.58`) + router port-forwards | nginx on `.2`, RustDesk on `.13` | Web apps (`https://local.crsib.me`) and RustDesk relay |
 | **zrok** share tunnels | `home-controller` `.2` | On-demand public URLs for `unms`, `router`, `uisp` |
-| **ZeroTier** | `home-controller` `.2` | Flat overlay to reach the box (and routed LAN, if configured) without port-forwards |
+| **Headscale / Tailscale** | control plane on `.2` (`headscale.crsib.me`) | Self-hosted WireGuard mesh — reach member nodes by their `100.64.x` address |
+| **ZeroTier** | `home-controller` `.2` | Second flat overlay to reach the box without port-forwards |
 | **RustDesk** (by ID) | `dvedenko-net` `.13` | Remote desktop / headless control |
 | **FortiClient VPN** | `dvedenko-net` `.13` | Outbound corp (`2GIS`) tunnel — not an inbound path |
 
+## Headscale + Tailscale (self-hosted mesh)
+
+- **Control plane**: `headscale` runs **natively** on `home-controller` (`.2`,
+  `/usr/bin/headscale`, active), published by nginx at **`headscale.crsib.me`**.
+- **Mesh addressing**: IPv4 `100.64.0.0/10`, IPv6 `fd7a:115c:a1e0::/48` (standard
+  Tailscale ULA).
+- **Nodes** (2026-06-14): one — `dvedenko-24` (the `.13` box), user `dvedenko`,
+  `100.64.0.1` / `fd7a:115c:a1e0::1`, online. The `.13` box runs the `tailscale`
+  client (`tailscale0`).
+- This is the preferred way to reach the forti box off-LAN at the network layer
+  (RustDesk handles interactive desktop separately).
+- **TBD:** enrol more nodes (workstation, phones); confirm whether subnet routes /
+  exit node are advertised.
+
 ## ZeroTier
 
-- `home-controller` is a member: node `09fe4d687b`, client v1.16.1, status ONLINE.
-- Provides an off-LAN way to reach `.2` regardless of the home WAN IP.
-- **TBD:** record the joined network ID(s) and whether managed routes expose the
-  whole `192.168.1.0/24`.
+- `home-controller` is also a member of a **ZeroTier** network: node `09fe4d687b`,
+  client v1.16.1, ONLINE — a second overlay alongside Headscale.
+- _(ZeroTier network ID intentionally not investigated per request.)_
 
 ## zrok (OpenZiti)
 
