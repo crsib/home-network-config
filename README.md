@@ -30,6 +30,7 @@ they are kept in sync by reading the live hosts, **not** by inventing config.
 | [docs/access.md](docs/access.md) | How to reach each host (SSH inventory), credentials policy |
 | [docs/hosts/](docs/hosts/) | Per-host deep dives — [router](docs/hosts/edgerouter-4.md), [controller](docs/hosts/home-controller.md), [forti box](docs/hosts/dvedenko-net.md) |
 | [docs/services/](docs/services/) | Cross-cutting service docs — [overview](docs/services/overview.md), [DNS](docs/services/dns.md), [reverse proxy & certs](docs/services/reverse-proxy-and-certs.md), [overlays & remote access](docs/services/overlay-and-remote-access.md) |
+| [docs/decisions/](docs/decisions/) | Architecture Decision Records (ADRs) |
 | [runbooks/](runbooks/) | Step-by-step operational procedures |
 | [MEMORY.md](MEMORY.md) | Fast orientation for a returning operator (or Claude session) |
 

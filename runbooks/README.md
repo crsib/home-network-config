@@ -5,7 +5,11 @@ copy-pasteable, and assumes the access in [docs/access.md](../docs/access.md).
 
 ## Index
 
-_None written yet — add as procedures are exercised._ Good first candidates:
+- **[deploy-pangolin.md](deploy-pangolin.md)** — stand up Pangolin on the VDSina VPS
+  + Newt connector on `.2` to publish the admin UIs behind SSO, replacing zrok
+  (implements [ADR-0001](../docs/decisions/0001-replace-zrok-with-pangolin.md)).
+
+Other good candidates:
 
 - **Add an internal `*.local.crsib.me` app** — DNS record + nginx vhost on `.2`.
 - **Renew / reissue the wildcard cert** — certbot + Cloudflare DNS-01 on `.2`.

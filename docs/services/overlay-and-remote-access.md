@@ -53,10 +53,13 @@ Three `openziti/zrok` reserved-share stacks on `.2` (compose dirs
 | `uisp` | `https://127.0.0.1:8443` | **UniFi** controller (note: name vs. target are swapped) |
 
 > ⚠️ **Status 2026-06-14:** the controller `89.110.79.146:443` is **unreachable**
-> (i/o timeout) from `.2`, so all three share containers **crash-loop**
-> (`unable to create zrok client …`). The tunnels are not functional until the
-> zrok controller VPS is back. Share tokens live in the per-dir compose `.env`
-> (git-ignored) — not recorded here.
+> (the VPS is up — `:22`/`:80` respond — but the zrok controller on `:443` is down),
+> so all three share containers **crash-loop** (`unable to create zrok client …`).
+>
+> 🔜 **Being replaced by Pangolin** (decided 2026-06-14) — see
+> [ADR-0001](../decisions/0001-replace-zrok-with-pangolin.md) and the
+> [deploy runbook](../../runbooks/deploy-pangolin.md). These zrok stacks will be
+> decommissioned once Pangolin is serving `router` / `unifi` / `uisp` behind SSO.
 
 ## RustDesk (self-hosted)
 

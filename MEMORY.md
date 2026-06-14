@@ -61,7 +61,10 @@ both on `.2`.
 - UniFi controller is classic (8443, user/pass login — no API key); inventory already
   read from its Mongo (2 APs, SSIDs, Default network). **Decision 2026-06-14: leave
   as-is** — no repeatable API access set up (don't re-raise).
-- Bring zrok controller (`89.110.79.146`) back, or retire the shares.
+- **zrok → Pangolin migration** (decided 2026-06-14, [ADR-0001]): deploy Pangolin on
+  VDSina `89.110.79.146` (alive, `:443` free) + Newt on `.2`, publish router/unifi/uisp
+  behind SSO via `*.ext.crsib.me` (Cloudflare DNS-01), then decommission zrok. Runbook:
+  `runbooks/deploy-pangolin.md`. Not yet executed.
 - Drop stale `32400`/`51413` port-forwards (Plex/Transmission gone).
 
 _Earlier resolved: VLAN2="Devices"/VLAN3=Guest; port-forwards mapped; cert=certbot/nginx
