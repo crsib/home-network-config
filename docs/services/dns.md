@@ -2,16 +2,25 @@
 
 _Last verified: 2026-06-14._
 
-## Resolvers on the network
+## What clients actually use
+
+**DHCP hands every subnet public resolvers — `1.1.1.1` (Cloudflare) and `8.8.8.8`
+(Google) — not a local resolver.** Verified in the router's generated
+`dhcpd.conf` (2026-06-14): the `LAN`, `Devices`, and `Guest` scopes all advertise
+`domain-name-servers 1.1.1.1, 8.8.8.8`. So normal LAN clients resolve straight to
+the internet; there is **no network-wide ad-blocking or split-horizon DNS** today.
+
+## Resolvers present on the network
 
 | Resolver | Host | Listen | Role |
 |----------|------|--------|------|
-| EdgeOS `dnsmasq` | EdgeRouter-4 `.1` | `192.168.1.1:53` | Primary LAN resolver + DHCP-advertised DNS |
+| EdgeOS `dnsmasq` | EdgeRouter-4 `.1` | `192.168.1.1:53` | Listening, but **not** advertised via DHCP (clients use 1.1.1.1/8.8.8.8) |
 | systemd-resolved | dvedenko-net `.13` | `192.168.1.13:53`, `127.0.0.54:53` | Stub resolver, LAN-visible; serves corp names over the FortiClient tunnel |
+| sing-box DNS | home-controller `.2` | internal | DoT→NextDNS / direct, for proxied traffic only — see [sing-box](sing-box-proxy.md) |
 
 > The old **Pi-hole + Unbound** pair (DoT to Cloudflare/Quad9) from this repo's git
 > history is **retired** — see the note in [services/overview.md](overview.md).
-> If ad-blocking DNS is reintroduced, document the new design here.
+> If ad-blocking DNS is reintroduced, point DHCP at it (currently public DNS).
 
 ## Naming: `crsib.me`
 
@@ -39,8 +48,14 @@ nslookup local.crsib.me 192.168.1.1
 nslookup local.crsib.me 192.168.1.13
 ```
 
+## Names published under `crsib.me` (TLS SANs on the `.2` cert)
+
+`local.crsib.me`, `headscale.crsib.me`, `derp.crsib.me` — all resolve/route to
+`home-controller` via the nginx proxy. `derp.crsib.me` is the Headscale embedded
+**DERP** relay.
+
 ## TODO / to verify
 
-- [ ] Confirm what upstreams the EdgeRouter dnsmasq forwards to (ISP vs public).
-- [ ] List internal `*.local.crsib.me` A-records actually configured today.
-- [ ] Decide whether `.13`'s resolved should be advertised to LAN clients at all.
+- [ ] Decide whether to reintroduce a filtering resolver and point DHCP at it
+      (today DHCP = public `1.1.1.1` / `8.8.8.8`).
+- [ ] List internal `*.local.crsib.me` records actually configured today.

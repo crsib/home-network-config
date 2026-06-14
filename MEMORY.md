@@ -39,13 +39,24 @@ both on `.2`.
 - Re-verify against live hosts; bump "Last verified" dates. See
   `runbooks/README.md` → "Refresh the knowledgebase from live hosts".
 
+## Key facts from deep dig (2026-06-14)
+- **DHCP DNS = public** `1.1.1.1`/`8.8.8.8` for all subnets (no local/filtering resolver).
+  Ranges: LAN `.38–164/166–206/208–243`, Devices `.2.20–200`, Guest `.3.10–255`.
+- **Wi-Fi VLAN gap**: UniFi SSIDs (`crsib-network`, `crsib-network-devices`) all
+  untagged→Default LAN; VLAN2/3 segmentation NOT via UniFi. Guest likely on the
+  TP-Link AP at `.3` (MAC `b0:95:75`).
+- **Cert** `local.crsib.me` SANs: `headscale.crsib.me`, `derp.crsib.me` (Headscale DERP).
+- **zrok DOWN**: self-hosted controller `zrok.zrok.crsib.me` (`89.110.79.146`/VDSinaWG)
+  unreachable → shares crash-loop. Targets: unms→`:9443`, router→`192.168.1.1`, uisp→`:8443`.
+- **UDP/443→Aeza `104.238.29.139:55444`**: handled on the Aeza VPS (not sing-box,
+  `quic:false`); external host, not probed.
+
 ## Open TODOs
-- DHCP start/stop ranges; SSID/port → VLAN mapping.
-- Protocol of UDP/443→Aeza relay (QUIC/HTTP3 for sing-box?); cert coverage for `headscale.crsib.me`.
-- Pin `.3` guest device (MAC `b0:95:75:…`); zrok reserved URLs.
+- Resolve Wi-Fi→VLAN placement (wired ports? TP-Link AP?); confirm `.3` model.
+- Probe Aeza VPS for the UDP/443 datapath (needs explicit authorization — external host).
+- Bring zrok controller (`89.110.79.146`) back, or retire the shares.
 - Drop stale `32400`/`51413` port-forwards (Plex/Transmission gone).
 
-_Resolved 2026-06-14: VLAN2="Devices", VLAN3=Guest; port-forwards mapped; cert =
-certbot/nginx (not Cloudflare wildcard); vhosts enumerated (local→Nextcloud,
-headscale.crsib.me→:8081); `:1080`/`:8081` identified; sing-box gateway documented;
-MicroK8s idle; Headscale/Tailscale discovered; `.10`=Canon printer; APs `.219`/`.243`._
+_Earlier resolved: VLAN2="Devices"/VLAN3=Guest; port-forwards mapped; cert=certbot/nginx
+(not Cloudflare wildcard); vhosts (local→Nextcloud, headscale→:8081); sing-box gateway;
+MicroK8s idle; Headscale/Tailscale; `.10`=Canon; UniFi APs `.219`/`.243`._

@@ -25,7 +25,7 @@ _Last verified: 2026-06-14._
 | **Nextcloud** | Docker Compose | web `9876` | Stack: `nextcloud-web-1` (nginx:alpine), `nextcloud-app-1` (nextcloud:fpm-alpine), `nextcloud-cron-1`, `nextcloud-redis-1`, `nextcloud-db-1` (mariadb:lts) |
 | **MicroK8s** | snap `v1.32.13` | API `16443`, kubelet `10250`, cluster-agent `25000`, dqlite `19001`, … | Single-node Kubernetes — **idle**: only `kube-system` pods (calico, coredns), no user workloads as of 2026-06-14 |
 | **ZeroTier** | native | `9993/udp` | Node `09fe4d687b`, v1.16.1, ONLINE |
-| **zrok** (OpenZiti) | Docker | — | Public share tunnels: `unms-zrok-share`, `router-zrok-share`, `uisp-zrok-share` |
+| **zrok** (OpenZiti) | Docker | — | Reserved shares `unms`→UISP, `router`→EdgeRouter, `uisp`→UniFi via self-hosted controller `zrok.zrok.crsib.me` (`89.110.79.146`). **Currently down** — controller unreachable, containers crash-loop. See [overlays](../services/overlay-and-remote-access.md) |
 | **sing-box** | native | mixed `1080`, trojan `10443`, vless `11443` | Rule-based proxy gateway; egress via NaïveProxy → Aeza VPS. See [sing-box](../services/sing-box-proxy.md) |
 | **systemd-resolved** | native | `127.0.0.53`/`127.0.0.54` | Local stub resolver |
 

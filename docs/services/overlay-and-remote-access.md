@@ -19,7 +19,10 @@ _Last verified: 2026-06-14._
 ## Headscale + Tailscale (self-hosted mesh)
 
 - **Control plane**: `headscale` runs **natively** on `home-controller` (`.2`,
-  `/usr/bin/headscale`, active), published by nginx at **`headscale.crsib.me`**.
+  `/usr/bin/headscale`, HTTP on `127.0.0.1:8081`, gRPC `127.0.0.1:50444`), published
+  by nginx at **`headscale.crsib.me`**.
+- **Embedded DERP relay**: enabled, advertised at **`derp.crsib.me`** with STUN on
+  `:3478` (covered by the same TLS cert).
 - **Mesh addressing**: IPv4 `100.64.0.0/10`, IPv6 `fd7a:115c:a1e0::/48` (standard
   Tailscale ULA).
 - **Nodes** (2026-06-14): one — `dvedenko-24` (the `.13` box), user `dvedenko`,
@@ -36,16 +39,24 @@ _Last verified: 2026-06-14._
   client v1.16.1, ONLINE — a second overlay alongside Headscale.
 - _(ZeroTier network ID intentionally not investigated per request.)_
 
-## zrok (OpenZiti)
+## zrok (OpenZiti) — currently **DOWN**
 
-Three `openziti/zrok` share containers run on `.2`:
+Three `openziti/zrok` reserved-share stacks on `.2` (compose dirs
+`/home/dvedenko/zrok/{unms,router,uisp}`, entrypoint `zrok-share.bash`). They use a
+**self-hosted zrok controller** at `zrok.zrok.crsib.me` → `89.110.79.146` (the
+`VDSinaWG` VPS).
 
-- `unms-zrok-share` — exposes the UISP/UNMS UI
-- `router-zrok-share` — exposes the EdgeRouter UI
-- `uisp-zrok-share` — exposes UISP
+| Reserved share | Backend target | Effective service |
+|----------------|----------------|-------------------|
+| `unms` | `https://127.0.0.1:9443` | UISP / UNMS |
+| `router` | `https://192.168.1.1` | EdgeRouter UI |
+| `uisp` | `https://127.0.0.1:8443` | **UniFi** controller (note: name vs. target are swapped) |
 
-These create public zrok URLs without touching router port-forwards. **TBD:** pin
-the reserved share names / URLs and where the zrok env/token is stored.
+> ⚠️ **Status 2026-06-14:** the controller `89.110.79.146:443` is **unreachable**
+> (i/o timeout) from `.2`, so all three share containers **crash-loop**
+> (`unable to create zrok client …`). The tunnels are not functional until the
+> zrok controller VPS is back. Share tokens live in the per-dir compose `.env`
+> (git-ignored) — not recorded here.
 
 ## RustDesk (self-hosted)
 

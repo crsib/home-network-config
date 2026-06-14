@@ -33,16 +33,35 @@ variants) but `eth1` is currently down, so only WAN 1 is live.
 
 ## DHCP
 
-Active pools (from `show dhcp leases`, 2026-06-14):
+Pools from the generated `dhcpd.conf` (2026-06-14). **All pools advertise public
+DNS `1.1.1.1, 8.8.8.8`** (see [dns.md](../services/dns.md)).
 
-| Pool | Subnet | Used for |
-|------|--------|----------|
-| `LAN` | `192.168.1.0/24` | Main devices — workstations, phones, UniFi APs (U6-Lite `.219`, U6-Plus `.243`), Yandex stations, smart-home gear |
-| `Devices` | `192.168.2.0/24` | VLAN 2 — TVs (LG webOS), Xbox, misc IoT |
-| (VLAN 3 / Guest) | `192.168.3.0/24` | **Guest network** — no active leases at sweep |
+| Pool | Subnet | Gateway | Range | Used for |
+|------|--------|---------|-------|----------|
+| `LAN` | `192.168.1.0/24` | `.1.1` | `.1.38–.164`, `.166–.206`, `.208–.243` | Main devices — workstations, phones, UniFi APs (U6-Lite `.219`, U6-Plus `.243`), Yandex stations, smart-home gear |
+| `Devices` | `192.168.2.0/24` | `.2.1` | `.2.20–.2.200` | VLAN 2 — TVs (LG webOS), Xbox, misc IoT |
+| `Guest` | `192.168.3.0/24` | `.3.1` | `.3.10–.3.255` | VLAN 3 — guest network |
 
-Static / non-DHCP hosts on the main LAN include `.1` (router), `.2`, `.13`,
-`.10` (Canon printer), and `.3` (unidentified — MAC `b0:95:75:…`, **not** a UniFi AP).
+The gaps in the LAN range (`.165`, `.207`, `.244`+) leave room for static hosts:
+`.1` (router), `.2`, `.13`, `.10` (Canon printer), `.165` (OrangePi), and `.3`
+(**TP-Link** device, MAC `b0:95:75:…` — associated with the guest network).
+
+## Wi-Fi / SSIDs (via UniFi controller on `.2`)
+
+UniFi APs (U6-Lite, U6-Plus) broadcast these SSIDs, all mapped to the **untagged
+`Default` network** (`192.168.1.0/24`) in the controller — **none are VLAN-tagged**:
+
+| SSID | Band | Network |
+|------|------|---------|
+| `crsib-network` / `crsib-network-2.4` | 5 GHz / 2.4 GHz | Default (LAN) |
+| `crsib-network-devices` / `crsib-network-devices-2.4` | 5 GHz / 2.4 GHz | Default (LAN) |
+
+> ⚠️ **Segmentation gap to verify:** the `Devices` (VLAN 2) and `Guest` (VLAN 3)
+> subnets are defined on the router, but the UniFi SSIDs — including the one named
+> `…-devices` — are **not** VLAN-tagged in the controller, so Wi-Fi clients on them
+> currently land on the main LAN. Guest Wi-Fi is most likely served by the separate
+> **TP-Link** device at `.3` rather than a UniFi SSID. Confirm how clients are
+> actually placed onto VLAN 2 / VLAN 3 (wired switch ports? the TP-Link AP?).
 
 ## Port-forwards (DNAT)
 
@@ -95,8 +114,6 @@ show configuration commands | grep port-forward     # inside the EdgeOS shell
 
 ## TODO / to verify
 
-- [ ] Map which SSIDs / switch ports land on VLAN 2 ("Devices") vs VLAN 3 (Guest)
-      vs the main LAN.
-- [ ] Record DHCP ranges (start/stop) and reserved/static mappings.
+- [ ] Resolve the Wi-Fi VLAN gap above (how clients reach VLAN 2 / VLAN 3).
+- [ ] Confirm the `.3` TP-Link device's exact model/role (guest AP?).
 - [ ] Decide whether to drop the stale `32400` / `51413` port-forwards.
-- [ ] Pin the `.3` guest-network device (MAC `b0:95:75:b3:3f:00`).

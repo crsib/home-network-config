@@ -42,15 +42,14 @@ datapath, distinct from the TCP/443 web stack. See [sing-box](sing-box-proxy.md)
 
 | Cert | Where | Issuer | How |
 |------|-------|--------|-----|
-| `local.crsib.me` | nginx on `.2` | Let's Encrypt | **certbot (snap)**, **`nginx` authenticator (HTTP-01)**. Renewal config: `/etc/letsencrypt/renewal/local.crsib.me.conf`. Auto-renew via `snap.certbot.renew.timer` |
+| `local.crsib.me` (+ SANs `headscale.crsib.me`, `derp.crsib.me`) | nginx on `.2` | Let's Encrypt | **certbot (snap)**, **`nginx` authenticator (HTTP-01)**. Renewal: `/etc/letsencrypt/renewal/local.crsib.me.conf`; auto-renew via `snap.certbot.renew.timer` |
 | `UbiquitiRouterUI` | EdgeRouter `.1` | self-signed | Router UI only |
 | `UniFi` | UniFi controller `.2:8443` | self-signed (Ubiquiti) | Controller GUI only |
 
 > Correction (was previously assumed Cloudflare DNS-01 wildcard): the live cert is a
-> **single-domain** `local.crsib.me` cert issued via the **nginx HTTP-01** plugin,
-> not a Cloudflare DNS wildcard. Whether `headscale.crsib.me` is a SAN on the same
-> cert or a separate one is **TBD** (only `local.crsib.me.conf` exists in the
-> renewal dir).
+> **single SAN cert** covering `local.crsib.me`, `headscale.crsib.me`, and
+> `derp.crsib.me` (the Headscale DERP relay), issued via the **nginx HTTP-01**
+> plugin — not a Cloudflare DNS wildcard.
 
 ## Public exposure (router port-forwards → `.2`)
 

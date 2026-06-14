@@ -50,9 +50,11 @@ EdgeRouter (see [dns.md](dns.md)).
 ## Relationship to the nginx UDP/443 relay
 
 nginx also `stream`-proxies inbound **UDP/443 → `104.238.29.139:55444`** (same Aeza
-VPS, different port). Both the sing-box `naive` outbound and that UDP relay point at
-the Aeza box — together they form the off-site datapath. **TBD:** confirm whether
-the UDP/443 relay is a QUIC/HTTP3 path for the same proxy or a separate service.
+VPS, different port). sing-box itself does **not** handle this UDP path (its config
+has `quic: false` and no hysteria/tuic/wireguard inbound), so the `55444` listener
+lives on the **Aeza VPS**, not here — likely the QUIC/HTTP3 side of the same
+NaïveProxy or a separate UDP proxy. The Aeza box is an external host outside the
+authorized `.1/.2/.13` scope and was **not probed**; confirm from the VPS directly.
 
 ## Related
 

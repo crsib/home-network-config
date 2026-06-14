@@ -56,6 +56,11 @@ graph TD
 A **second WAN** (`eth1`) is provisioned on the router but currently down — see
 [hosts/edgerouter-4.md](hosts/edgerouter-4.md).
 
+> **Wi-Fi VLAN caveat:** the UniFi SSIDs (`crsib-network`, `crsib-network-devices`)
+> are **untagged** (Default/LAN) in the controller, so VLAN 2/3 segmentation is not
+> driven by Wi-Fi today. Guest Wi-Fi is likely on the separate TP-Link AP at `.3`.
+> Details + open question in [hosts/edgerouter-4.md](hosts/edgerouter-4.md).
+
 `eth1` is **down** (unused). DHCP scopes, inter-VLAN firewall policy, and
 port-forwards live in the EdgeRouter config — see
 [hosts/edgerouter-4.md](hosts/edgerouter-4.md).
@@ -69,7 +74,7 @@ SSH config or historical records and were not re-confirmed in the last sweep.
 |----|----------|-------------|------|----------|
 | `192.168.1.1` | EdgeRouter-4 | EdgeOS 3.0.1 (Debian 9, MIPS64) | Router / firewall / DNS / DHCP | `ubnt` |
 | `192.168.1.2` | home-controller | Ubuntu 24.04.4 (kernel 6.8) | Services host | `dvedenko` |
-| `192.168.1.3` | _guest-related_ | MAC `b0:95:75:…` | Tied to the guest network (per operator); exact device TBD | — |
+| `192.168.1.3` | _TP-Link device_ | MAC `b0:95:75:…` (TP-Link OUI) | Guest network (per operator) — likely the guest-Wi-Fi AP | — |
 | `192.168.1.10` | printer | **Canon** printer (MAC `9c:93:4e:…`) | Printing | — |
 | `192.168.1.13` | dvedenko-24.04-net | Ubuntu 24.04.4 (kernel 6.17) | Remote-access / VPN box | `dvedenko` |
 | `192.168.1.219` | U6-Lite | UniFi AP (DHCP) | Wi-Fi | — |
