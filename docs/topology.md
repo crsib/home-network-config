@@ -13,9 +13,17 @@ graph TD
         ER["EdgeRouter-4 · 192.168.1.1<br/>EdgeOS 3.0.1 · ER-e300<br/>routing · firewall · DNS · DHCP"]
     end
 
-    ER -->|bond0| LAN
-    ER -->|bond0.2| VLAN2
-    ER -->|bond0.3| VLAN3
+    ER -->|bond0 trunk| SW
+
+    subgraph SW["Managed switches"]
+        S4["EdgeSwitch .4"]
+        S5["EdgeSwitch .5"]
+        S3["TP-Link switch .3"]
+    end
+
+    SW --> LAN
+    SW -->|VLAN 2 tag| VLAN2
+    SW -->|VLAN 3 tag| VLAN3
 
     subgraph LAN["Main LAN — 192.168.1.0/24"]
         HC["home-controller · .2<br/>Ubuntu 24.04<br/>nginx · UniFi · UISP · Nextcloud<br/>Headscale · MicroK8s · ZeroTier · zrok"]
@@ -56,10 +64,11 @@ graph TD
 A **second WAN** (`eth1`) is provisioned on the router but currently down — see
 [hosts/edgerouter-4.md](hosts/edgerouter-4.md).
 
-> **Wi-Fi VLAN caveat:** the UniFi SSIDs (`crsib-network`, `crsib-network-devices`)
-> are **untagged** (Default/LAN) in the controller, so VLAN 2/3 segmentation is not
-> driven by Wi-Fi today. Guest Wi-Fi is likely on the separate TP-Link AP at `.3`.
-> Details + open question in [hosts/edgerouter-4.md](hosts/edgerouter-4.md).
+> **VLAN assignment:** the UniFi SSIDs are **untagged** (Default/LAN), so VLAN 2/3
+> segmentation is done at the **managed switches** (EdgeSwitch `.4`/`.5`, TP-Link
+> `.3`) via per-port VLAN profiles — not by Wi-Fi. No guest SSID exists, so guest
+> access is wired/port-based. Details in
+> [hosts/edgerouter-4.md](hosts/edgerouter-4.md).
 
 `eth1` is **down** (unused). DHCP scopes, inter-VLAN firewall policy, and
 port-forwards live in the EdgeRouter config — see
@@ -74,7 +83,9 @@ SSH config or historical records and were not re-confirmed in the last sweep.
 |----|----------|-------------|------|----------|
 | `192.168.1.1` | EdgeRouter-4 | EdgeOS 3.0.1 (Debian 9, MIPS64) | Router / firewall / DNS / DHCP | `ubnt` |
 | `192.168.1.2` | home-controller | Ubuntu 24.04.4 (kernel 6.8) | Services host | `dvedenko` |
-| `192.168.1.3` | _TP-Link device_ | MAC `b0:95:75:…` (TP-Link OUI) | Guest network (per operator) — likely the guest-Wi-Fi AP | — |
+| `192.168.1.3` | TP-Link switch | MAC `b0:95:75:…` (TP-Link OUI) | Managed switch (web UI on `:80`) | — |
+| `192.168.1.4` | EdgeSwitch | Ubiquiti **EdgeSwitch** (MAC `18:e8:29:…`) | Managed switch (newer fw) | `ubnt` |
+| `192.168.1.5` | EdgeSwitch | Ubiquiti **EdgeSwitch** (MAC `e0:63:da:…`, dropbear) | Managed switch (older fw) | `ubnt` |
 | `192.168.1.10` | printer | **Canon** printer (MAC `9c:93:4e:…`) | Printing | — |
 | `192.168.1.13` | dvedenko-24.04-net | Ubuntu 24.04.4 (kernel 6.17) | Remote-access / VPN box | `dvedenko` |
 | `192.168.1.219` | U6-Lite | UniFi AP (DHCP) | Wi-Fi | — |

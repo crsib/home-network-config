@@ -42,9 +42,12 @@ both on `.2`.
 ## Key facts from deep dig (2026-06-14)
 - **DHCP DNS = public** `1.1.1.1`/`8.8.8.8` for all subnets (no local/filtering resolver).
   Ranges: LAN `.38–164/166–206/208–243`, Devices `.2.20–200`, Guest `.3.10–255`.
-- **Wi-Fi VLAN gap**: UniFi SSIDs (`crsib-network`, `crsib-network-devices`) all
-  untagged→Default LAN; VLAN2/3 segmentation NOT via UniFi. Guest likely on the
-  TP-Link AP at `.3` (MAC `b0:95:75`).
+- **Switches**: `.4` & `.5` = Ubiquiti **EdgeSwitch** (NOT in UniFi Network ctrlr —
+  EdgeMAX gear, own web UI / UISP); `.3` = **TP-Link** managed switch. VLAN 2/3
+  tagging is done at these switches' ports, NOT via Wi-Fi.
+- **Wi-Fi**: UniFi controller (.2) manages only 2 APs (U6 Lite `.219`, U6+ `.243`);
+  SSIDs `crsib-network`(+2.4) & `crsib-network-devices`(+2.4) all untagged→Default LAN.
+  No guest SSID — guest is wired/port-based.
 - **Cert** `local.crsib.me` SANs: `headscale.crsib.me`, `derp.crsib.me` (Headscale DERP).
 - **zrok DOWN**: self-hosted controller `zrok.zrok.crsib.me` (`89.110.79.146`/VDSinaWG)
   unreachable → shares crash-loop. Targets: unms→`:9443`, router→`192.168.1.1`, uisp→`:8443`.
@@ -52,7 +55,8 @@ both on `.2`.
   `quic:false`); external host, not probed.
 
 ## Open TODOs
-- Resolve Wi-Fi→VLAN placement (wired ports? TP-Link AP?); confirm `.3` model.
+- Capture per-port VLAN profiles from EdgeSwitches `.4`/`.5` + TP-Link `.3`; confirm switch models.
+- Confirm whether the EdgeSwitches are adopted in UISP on `.2`.
 - Probe Aeza VPS for the UDP/443 datapath (needs explicit authorization — external host).
 - Bring zrok controller (`89.110.79.146`) back, or retire the shares.
 - Drop stale `32400`/`51413` port-forwards (Plex/Transmission gone).

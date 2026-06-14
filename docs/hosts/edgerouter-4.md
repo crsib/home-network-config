@@ -56,12 +56,25 @@ UniFi APs (U6-Lite, U6-Plus) broadcast these SSIDs, all mapped to the **untagged
 | `crsib-network` / `crsib-network-2.4` | 5 GHz / 2.4 GHz | Default (LAN) |
 | `crsib-network-devices` / `crsib-network-devices-2.4` | 5 GHz / 2.4 GHz | Default (LAN) |
 
-> ⚠️ **Segmentation gap to verify:** the `Devices` (VLAN 2) and `Guest` (VLAN 3)
-> subnets are defined on the router, but the UniFi SSIDs — including the one named
-> `…-devices` — are **not** VLAN-tagged in the controller, so Wi-Fi clients on them
-> currently land on the main LAN. Guest Wi-Fi is most likely served by the separate
-> **TP-Link** device at `.3` rather than a UniFi SSID. Confirm how clients are
-> actually placed onto VLAN 2 / VLAN 3 (wired switch ports? the TP-Link AP?).
+> **How VLAN 2 / VLAN 3 are actually assigned:** the UniFi SSIDs are untagged, so
+> Wi-Fi does **not** place clients on the Devices/Guest VLANs. The router does
+> router-on-a-stick (`bond0.2` / `bond0.3`); the **VLAN tagging happens at the
+> managed switches** (the EdgeSwitches `.4`/`.5` and/or the TP-Link switch `.3`) via
+> per-port VLAN profiles. No guest SSID exists in the UniFi controller, so guest
+> access is wired/port-based. **TBD:** capture the per-port VLAN assignments from the
+> switches (they aren't in the UniFi Network controller — see below).
+
+## Switches (Layer 2)
+
+The router trunks the LAN to managed switches that aren't adopted by the UniFi
+**Network** controller on `.2` (EdgeSwitches are EdgeMAX gear — managed via their
+own web UI or **UISP**):
+
+| IP | Device | MAC OUI | Mgmt | Notes |
+|----|--------|---------|------|-------|
+| `.4` | Ubiquiti **EdgeSwitch** | `18:e8:29` | `https://192.168.1.4` (`ubnt`) | Newer firmware (cert `CN=ubnt`) |
+| `.5` | Ubiquiti **EdgeSwitch** | `e0:63:da` | `https://192.168.1.5` (`ubnt`, dropbear) | Older firmware (cert `CN=UBNT-<mac>`, dropbear 2016) |
+| `.3` | **TP-Link** managed switch | `b0:95:75` | `http://192.168.1.3` | Web-managed; no SSH/TLS |
 
 ## Port-forwards (DNAT)
 
