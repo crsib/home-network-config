@@ -50,11 +50,17 @@ EdgeRouter (see [dns.md](dns.md)).
 ## Relationship to the nginx UDP/443 relay
 
 nginx also `stream`-proxies inbound **UDP/443 → `104.238.29.139:55444`** (same Aeza
-VPS, different port). sing-box itself does **not** handle this UDP path (its config
-has `quic: false` and no hysteria/tuic/wireguard inbound), so the `55444` listener
-lives on the **Aeza VPS**, not here — likely the QUIC/HTTP3 side of the same
-NaïveProxy or a separate UDP proxy. The Aeza box is an external host outside the
-authorized `.1/.2/.13` scope and was **not probed**; confirm from the VPS directly.
+VPS, different port). This is a **separate** protocol, not sing-box (its config has
+`quic: false`). Verified on the Aeza VPS (`AezaNaive`, 2026-06-14):
+
+| On Aeza `104.238.29.139` | Service | Used by |
+|--------------------------|---------|---------|
+| TCP `:443` | **Caddy** (forwardproxy = NaïveProxy server) | sing-box `naive` outbound |
+| UDP `:55444` | **Hysteria** (`hysteria-server.service`, QUIC) | the nginx UDP/443 relay on `.2` |
+
+So the home network offers two egress paths to the same Aeza exit: **NaïveProxy**
+(TCP, via sing-box) and **Hysteria** (UDP/QUIC, via the nginx relay). The Aeza box
+is `harsh-amethyst.ptr.network`, Ubuntu 24.04.
 
 ## Related
 

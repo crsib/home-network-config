@@ -33,10 +33,10 @@ upstream udp_backend { server 104.238.29.139:55444; }
 server { listen 443 udp; proxy_pass udp_backend; }
 ```
 
-`104.238.29.139` is an external VPS (the `AezaNaive` host in the SSH config) — the
-same box the **sing-box** `naive` outbound targets (`:443`). So inbound **UDP/443**
-(port-forwarded by the router to `.2`) is relayed off-site as part of the proxy
-datapath, distinct from the TCP/443 web stack. See [sing-box](sing-box-proxy.md).
+`104.238.29.139` is an external VPS (`AezaNaive`). Its `:55444` runs a **Hysteria**
+(QUIC) server, so inbound **UDP/443** (port-forwarded by the router to `.2`) is
+relayed to Hysteria off-site. The same VPS also runs **Caddy/NaïveProxy** on TCP
+`:443`, which sing-box uses as its `naive` outbound. See [sing-box](sing-box-proxy.md).
 
 ## Certificates
 

@@ -114,6 +114,7 @@ These ride on top of the physical LAN — details in
   `router`, and `uisp`.
 - **FortiClient VPN (`2GIS`)** — corporate tunnel terminated on `192.168.1.13`
   (`fctvpn*` interface; corp DNS `10.54.68.68` / `10.54.129.129`).
-- **Off-site UDP relay** — nginx on `.2` forwards inbound **UDP/443** to an external
-  Aeza VPS (`104.238.29.139:55444`); see
-  [services/reverse-proxy-and-certs.md](services/reverse-proxy-and-certs.md).
+- **Off-site proxy exit (Aeza VPS `104.238.29.139`)** — two egress paths to the same
+  box: **NaïveProxy** (Caddy, TCP `:443`, via sing-box) and **Hysteria** (QUIC, UDP
+  `:55444`, fed by the nginx UDP/443 relay on `.2`). See
+  [services/sing-box-proxy.md](services/sing-box-proxy.md).

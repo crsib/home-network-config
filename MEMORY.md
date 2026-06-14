@@ -52,15 +52,15 @@ both on `.2`.
 - **Cert** `local.crsib.me` SANs: `headscale.crsib.me`, `derp.crsib.me` (Headscale DERP).
 - **zrok DOWN**: self-hosted controller `zrok.zrok.crsib.me` (`89.110.79.146`/VDSinaWG)
   unreachable → shares crash-loop. Targets: unms→`:9443`, router→`192.168.1.1`, uisp→`:8443`.
-- **UDP/443→Aeza `104.238.29.139:55444`**: handled on the Aeza VPS (not sing-box,
-  `quic:false`); external host, not probed.
+- **Aeza VPS `104.238.29.139`** (`AezaNaive`) = off-site proxy exit: TCP `:443`=Caddy
+  /NaïveProxy (sing-box `naive` outbound), UDP `:55444`=**Hysteria** (fed by nginx
+  UDP/443 relay on `.2`). Two egress paths to the same box.
 
 ## Open TODOs
 - Capture per-port VLAN profiles from switch **web UIs** (UISP API lacks them; no SSH-key access).
 - UniFi controller is classic (8443, user/pass login — no API key); inventory already
   read from its Mongo (2 APs, SSIDs, Default network). **Decision 2026-06-14: leave
   as-is** — no repeatable API access set up (don't re-raise).
-- Probe Aeza VPS for the UDP/443 datapath (needs explicit authorization — external host).
 - Bring zrok controller (`89.110.79.146`) back, or retire the shares.
 - Drop stale `32400`/`51413` port-forwards (Plex/Transmission gone).
 
