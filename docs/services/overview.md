@@ -20,7 +20,7 @@ _Last verified: 2026-06-14._
 | MicroK8s | home-controller `.2` | `16443`, `10250`, `25000` | snap | [controller](../hosts/home-controller.md) |
 | ZeroTier | home-controller `.2` | `9993/udp` | native | [overlays](overlay-and-remote-access.md) |
 | zrok shares | home-controller `.2` | — | Docker | [overlays](overlay-and-remote-access.md) |
-| SOCKS5 proxy | home-controller `.2` | `1080` | native | [overlays](overlay-and-remote-access.md) |
+| sing-box proxy gateway | home-controller `.2` | `1080` (mixed), `10443`, `11443` | native | [sing-box](sing-box-proxy.md) |
 | FortiClient VPN (`2GIS`) | dvedenko-net `.13` | `fctvpn*` | native | [forti box](../hosts/dvedenko-net.md) |
 | RustDesk server | dvedenko-net `.13` | `21115`–`21119` | native | [overlays](overlay-and-remote-access.md) |
 | microsocks (SOCKS5) | dvedenko-net `.13` | `1080` | native | [overlays](overlay-and-remote-access.md) |

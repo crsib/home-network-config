@@ -26,7 +26,7 @@ _Last verified: 2026-06-14._
 | `eth3` | UP | — | LAN (bonded) |
 | `bond0` | UP | `192.168.1.1/24` | **Main LAN** (eth2+eth3 LAG) |
 | `bond0.2` | UP | `192.168.2.1/24` | VLAN 2 — **"Devices"** (IoT / TVs / consoles) |
-| `bond0.3` | UP | `192.168.3.1/24` | VLAN 3 — provisioned, **no active leases** (purpose TBD) |
+| `bond0.3` | UP | `192.168.3.1/24` | VLAN 3 — **Guest network** (no active leases at sweep) |
 
 Dual-WAN is configured (port-forward NAT has both `ADDRv4_eth0` and `ADDRv4_eth1`
 variants) but `eth1` is currently down, so only WAN 1 is live.
@@ -39,7 +39,7 @@ Active pools (from `show dhcp leases`, 2026-06-14):
 |------|--------|----------|
 | `LAN` | `192.168.1.0/24` | Main devices — workstations, phones, UniFi APs (U6-Lite `.219`, U6-Plus `.243`), Yandex stations, smart-home gear |
 | `Devices` | `192.168.2.0/24` | VLAN 2 — TVs (LG webOS), Xbox, misc IoT |
-| (VLAN 3) | `192.168.3.0/24` | No active leases observed |
+| (VLAN 3 / Guest) | `192.168.3.0/24` | **Guest network** — no active leases at sweep |
 
 Static / non-DHCP hosts on the main LAN include `.1` (router), `.2`, `.13`,
 `.10` (Canon printer), and `.3` (unidentified — MAC `b0:95:75:…`, **not** a UniFi AP).
@@ -95,8 +95,8 @@ show configuration commands | grep port-forward     # inside the EdgeOS shell
 
 ## TODO / to verify
 
-- [ ] Confirm VLAN 3's intended purpose (provisioned but idle) and which SSIDs /
-      switch ports map to VLAN 2 ("Devices") vs the main LAN.
+- [ ] Map which SSIDs / switch ports land on VLAN 2 ("Devices") vs VLAN 3 (Guest)
+      vs the main LAN.
 - [ ] Record DHCP ranges (start/stop) and reserved/static mappings.
 - [ ] Decide whether to drop the stale `32400` / `51413` port-forwards.
-- [ ] Identify the `.3` device (MAC `b0:95:75:b3:3f:00`).
+- [ ] Pin the `.3` guest-network device (MAC `b0:95:75:b3:3f:00`).

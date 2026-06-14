@@ -28,8 +28,8 @@ graph TD
     subgraph VLAN2["VLAN 2 · 192.168.2.0/24 · 'Devices'"]
         V2[("IoT · TVs · Xbox")]
     end
-    subgraph VLAN3["VLAN 3 · 192.168.3.0/24"]
-        V3[("idle — no leases<br/>purpose: TBD")]
+    subgraph VLAN3["VLAN 3 · 192.168.3.0/24 · Guest"]
+        V3[("guest network<br/>no active leases")]
     end
 
     HC -.->|UISP manages| ER
@@ -51,7 +51,7 @@ graph TD
 |---------|---------|-----------|------|
 | `192.168.1.0/24` | `192.168.1.1` | `bond0` (eth2+eth3 bonded) | **Main LAN** — servers, workstations, APs, most clients |
 | `192.168.2.0/24` | `192.168.2.1` | `bond0.2` | **VLAN 2 "Devices"** — IoT, smart TVs, game consoles |
-| `192.168.3.0/24` | `192.168.3.1` | `bond0.3` | VLAN 3 — provisioned, **no active leases** (purpose TBD) |
+| `192.168.3.0/24` | `192.168.3.1` | `bond0.3` | **VLAN 3 — Guest network** (no active leases at sweep) |
 
 A **second WAN** (`eth1`) is provisioned on the router but currently down — see
 [hosts/edgerouter-4.md](hosts/edgerouter-4.md).
@@ -69,7 +69,7 @@ SSH config or historical records and were not re-confirmed in the last sweep.
 |----|----------|-------------|------|----------|
 | `192.168.1.1` | EdgeRouter-4 | EdgeOS 3.0.1 (Debian 9, MIPS64) | Router / firewall / DNS / DHCP | `ubnt` |
 | `192.168.1.2` | home-controller | Ubuntu 24.04.4 (kernel 6.8) | Services host | `dvedenko` |
-| `192.168.1.3` | _unidentified_ | MAC `b0:95:75:…` | **TBD** — not a UniFi AP | — |
+| `192.168.1.3` | _guest-related_ | MAC `b0:95:75:…` | Tied to the guest network (per operator); exact device TBD | — |
 | `192.168.1.10` | printer | **Canon** printer (MAC `9c:93:4e:…`) | Printing | — |
 | `192.168.1.13` | dvedenko-24.04-net | Ubuntu 24.04.4 (kernel 6.17) | Remote-access / VPN box | `dvedenko` |
 | `192.168.1.219` | U6-Lite | UniFi AP (DHCP) | Wi-Fi | — |

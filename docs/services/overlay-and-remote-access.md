@@ -58,12 +58,12 @@ the reserved share names / URLs and where the zrok env/token is stored.
   websocket → crash loop).
 - Full detail: [forti-tray/MEMORY.md](../../../forti-tray/MEMORY.md).
 
-## SOCKS5 proxies
+## SOCKS / HTTP proxies
 
 | Host | Port | Service |
 |------|------|---------|
-| `.2` | `1080` | SOCKS5 (outbound) |
-| `.13` | `1080` | microsocks |
+| `.2` | `1080` | **sing-box** mixed inbound (SOCKS5 + HTTP) — rule-based egress via Aeza VPS. See [sing-box](sing-box-proxy.md) |
+| `.13` | `1080` | microsocks (plain SOCKS5) |
 
 ## FortiClient VPN (`2GIS`)
 

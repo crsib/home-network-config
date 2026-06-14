@@ -26,7 +26,7 @@ _Last verified: 2026-06-14._
 | **MicroK8s** | snap `v1.32.13` | API `16443`, kubelet `10250`, cluster-agent `25000`, dqlite `19001`, … | Single-node Kubernetes — **idle**: only `kube-system` pods (calico, coredns), no user workloads as of 2026-06-14 |
 | **ZeroTier** | native | `9993/udp` | Node `09fe4d687b`, v1.16.1, ONLINE |
 | **zrok** (OpenZiti) | Docker | — | Public share tunnels: `unms-zrok-share`, `router-zrok-share`, `uisp-zrok-share` |
-| **SOCKS5 proxy** | native | `1080` | Outbound proxy |
+| **sing-box** | native | mixed `1080`, trojan `10443`, vless `11443` | Rule-based proxy gateway; egress via NaïveProxy → Aeza VPS. See [sing-box](../services/sing-box-proxy.md) |
 | **systemd-resolved** | native | `127.0.0.53`/`127.0.0.54` | Local stub resolver |
 
 > Container names/images above were captured live on 2026-06-14 (`docker ps`).

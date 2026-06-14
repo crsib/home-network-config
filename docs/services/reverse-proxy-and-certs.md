@@ -15,8 +15,8 @@ UDP) on `192.168.1.2`.
 
 | `server_name` | Upstream | Purpose |
 |---------------|----------|---------|
-| `local.crsib.me` | `http://127.0.0.1:8081`, `http://localhost:9876`, `ws_port` | Main site → Nextcloud (`9876`) and an internal app on `8081`, plus a websocket upstream |
-| `headscale.crsib.me` | (Headscale on `.2`) | Self-hosted Tailscale control plane — see [overlays](overlay-and-remote-access.md) |
+| `local.crsib.me` | `http://localhost:9876` + a WebSocket upstream | **Nextcloud** (`9876`); the WS upstream forwards to **sing-box** Trojan/VLESS inbounds (`10443`/`11443`) — see [sing-box](sing-box-proxy.md) |
+| `headscale.crsib.me` | `http://127.0.0.1:8081` | **Headscale** HTTP listener (Tailscale control plane) — see [overlays](overlay-and-remote-access.md) |
 | `_` (default) | — | Catch-all default server |
 
 ```bash
@@ -33,10 +33,10 @@ upstream udp_backend { server 104.238.29.139:55444; }
 server { listen 443 udp; proxy_pass udp_backend; }
 ```
 
-`104.238.29.139` is an external VPS (the `AezaNaive` host in the SSH config). So
-inbound **UDP/443** (port-forwarded by the router to `.2`) is relayed off-site —
-this is a proxy/VPN datapath (likely QUIC/Naive-style), distinct from the TCP/443
-web stack. **TBD:** confirm the exact protocol and why the relay exists.
+`104.238.29.139` is an external VPS (the `AezaNaive` host in the SSH config) — the
+same box the **sing-box** `naive` outbound targets (`:443`). So inbound **UDP/443**
+(port-forwarded by the router to `.2`) is relayed off-site as part of the proxy
+datapath, distinct from the TCP/443 web stack. See [sing-box](sing-box-proxy.md).
 
 ## Certificates
 
@@ -65,7 +65,6 @@ public access via **zrok** tunnels — see [overlays](overlay-and-remote-access.
 
 ## TODO / to verify
 
-- [ ] Identify the app on `127.0.0.1:8081` behind `local.crsib.me`.
-- [ ] Confirm cert coverage for `headscale.crsib.me`.
-- [ ] Confirm the protocol/purpose of the UDP/443 → Aeza relay.
+- [ ] Confirm cert coverage for `headscale.crsib.me` (separate cert vs SAN).
+- [ ] Confirm whether the UDP/443 → Aeza relay is QUIC/HTTP3 for the same proxy.
 - [ ] Remove the stale `32400` / `51413` port-forwards on the router (or restore the services).
