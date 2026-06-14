@@ -58,8 +58,8 @@ both on `.2`.
 ## Open TODOs
 - Capture per-port VLAN profiles from switch **web UIs** (UISP API lacks them; no SSH-key access).
 - UniFi controller is classic (8443, user/pass login — no API key); inventory already
-  read from its Mongo (2 APs, SSIDs, Default network). Add `UNIFI_USER/PASS` to `.env`
-  only if repeatable API access is wanted.
+  read from its Mongo (2 APs, SSIDs, Default network). **Decision 2026-06-14: leave
+  as-is** — no repeatable API access set up (don't re-raise).
 - Probe Aeza VPS for the UDP/443 datapath (needs explicit authorization — external host).
 - Bring zrok controller (`89.110.79.146`) back, or retire the shares.
 - Drop stale `32400`/`51413` port-forwards (Plex/Transmission gone).
