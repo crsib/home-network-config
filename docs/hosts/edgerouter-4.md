@@ -70,11 +70,15 @@ The router trunks the LAN to managed switches that aren't adopted by the UniFi
 **Network** controller on `.2` (EdgeSwitches are EdgeMAX gear — managed via their
 own web UI or **UISP**):
 
-| IP | Device | MAC OUI | Mgmt | Notes |
-|----|--------|---------|------|-------|
-| `.4` | Ubiquiti **EdgeSwitch** | `18:e8:29` | `https://192.168.1.4` (`ubnt`) | Newer firmware (cert `CN=ubnt`) |
-| `.5` | Ubiquiti **EdgeSwitch** | `e0:63:da` | `https://192.168.1.5` (`ubnt`, dropbear) | Older firmware (cert `CN=UBNT-<mac>`, dropbear 2016) |
-| `.3` | **TP-Link** managed switch | `b0:95:75` | `http://192.168.1.3` | Web-managed; no SSH/TLS |
+| IP | Device | MAC OUI | Mgmt | SSH (key) | Notes |
+|----|--------|---------|------|-----------|-------|
+| `.4` | Ubiquiti **EdgeSwitch** | `18:e8:29` | `https://192.168.1.4` | **none** — `:22` closed (web-only) | Newer firmware (cert `CN=ubnt`) |
+| `.5` | Ubiquiti **EdgeSwitch** | `e0:63:da` | `https://192.168.1.5` | **no** — dropbear up but key auth rejected (password-only) | Older firmware (cert `CN=UBNT-<mac>`, dropbear 2016) |
+| `.3` | **TP-Link** managed switch | `b0:95:75` | `http://192.168.1.3` | n/a — no SSH | Web-managed only |
+
+> **None of the switches are SSH-key accessible** (verified 2026-06-14), so their
+> per-port VLAN profiles and exact models must be read from the **web UIs** (or
+> password SSH on `.5`). Capturing the port→VLAN map is a manual step.
 
 ## Port-forwards (DNAT)
 

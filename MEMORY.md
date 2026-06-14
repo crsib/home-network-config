@@ -55,7 +55,8 @@ both on `.2`.
   `quic:false`); external host, not probed.
 
 ## Open TODOs
-- Capture per-port VLAN profiles from EdgeSwitches `.4`/`.5` + TP-Link `.3`; confirm switch models.
+- Capture per-port VLAN profiles + models from switches via **web UI** — none are
+  SSH-key accessible (`.4` SSH off; `.5` dropbear password-only; `.3` no SSH).
 - Confirm whether the EdgeSwitches are adopted in UISP on `.2`.
 - Probe Aeza VPS for the UDP/443 datapath (needs explicit authorization — external host).
 - Bring zrok controller (`89.110.79.146`) back, or retire the shares.
