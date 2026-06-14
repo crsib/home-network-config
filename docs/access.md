@@ -18,9 +18,24 @@ entries from `~/.ssh/config`:
 | Alias | Host | User | Notes |
 |-------|------|------|-------|
 | `Router` | `192.168.1.1` | `ubnt` | EdgeRouter 4 (EdgeOS) — key auth works |
-| — | `192.168.1.4` | — | EdgeSwitch — **web UI only** (`https://192.168.1.4`); SSH `:22` closed |
-| — | `192.168.1.5` | — | EdgeSwitch — **web UI** (`https://192.168.1.5`); dropbear SSH up but **no key auth** (password-only) |
+| — | `192.168.1.4` | — | MainSwitch (EdgeSwitch 10X) — UISP-managed; **web UI only** (`https://192.168.1.4`), SSH `:22` closed |
+| — | `192.168.1.5` | — | BedroomSwitch (EdgeSwitch 5XP) — UISP-managed; **web UI** (`https://192.168.1.5`), dropbear SSH **no key auth** |
 | — | `192.168.1.3` | — | TP-Link switch — web UI only (`http://192.168.1.3`), no SSH |
+
+### API access (tokens in `.env`, git-ignored)
+
+| System | URL | Auth | `.env` key |
+|--------|-----|------|-----------|
+| **UISP / UNMS** | `https://192.168.1.2:9443/nms/api/v2.1` | header `x-auth-token: <token>` | `UISP_KEY` |
+| UniFi Network | `https://192.168.1.2:8443/api` | login `POST /api/login` (user/pass) — classic controller, no API-key support | _(none yet)_ |
+
+UISP example (token piped from `.env`, never echoed):
+
+```bash
+TOKEN=$(grep -E '^UISP_KEY=' .env | cut -d= -f2-)
+printf '%s\n' "$TOKEN" | ssh dvedenko@192.168.1.2 \
+  'TOK=$(cat); curl -sk -H "x-auth-token: $TOK" https://127.0.0.1:9443/nms/api/v2.1/devices'
+```
 | `HomeController` / (bare IP) | `192.168.1.2` | `dvedenko` | services host |
 | — | `192.168.1.13` | `dvedenko` | forti box; key auth, `BatchMode=yes` works |
 | `MacBook` | `192.168.1.17` | `dvedenko` | _(unverified)_ |

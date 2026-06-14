@@ -16,8 +16,8 @@ graph TD
     ER -->|bond0 trunk| SW
 
     subgraph SW["Managed switches"]
-        S4["EdgeSwitch .4"]
-        S5["EdgeSwitch .5"]
+        S4["MainSwitch .4<br/>EdgeSwitch 10X"]
+        S5["BedroomSwitch .5<br/>EdgeSwitch 5XP"]
         S3["TP-Link switch .3"]
     end
 
@@ -83,9 +83,9 @@ SSH config or historical records and were not re-confirmed in the last sweep.
 |----|----------|-------------|------|----------|
 | `192.168.1.1` | EdgeRouter-4 | EdgeOS 3.0.1 (Debian 9, MIPS64) | Router / firewall / DNS / DHCP | `ubnt` |
 | `192.168.1.2` | home-controller | Ubuntu 24.04.4 (kernel 6.8) | Services host | `dvedenko` |
-| `192.168.1.3` | TP-Link switch | MAC `b0:95:75:…` (TP-Link OUI) | Managed switch (web UI on `:80`) | — |
-| `192.168.1.4` | EdgeSwitch | Ubiquiti **EdgeSwitch** (MAC `18:e8:29:…`) | Managed switch (newer fw) | `ubnt` |
-| `192.168.1.5` | EdgeSwitch | Ubiquiti **EdgeSwitch** (MAC `e0:63:da:…`, dropbear) | Managed switch (older fw) | `ubnt` |
+| `192.168.1.3` | TP-Link switch | TP-Link managed switch (MAC `b0:95:75:…`) | L2 switch (web UI on `:80`) | — |
+| `192.168.1.4` | MainSwitch | Ubiquiti **EdgeSwitch 10X** (MAC `18:e8:29:…`) | L2 switch — UISP-managed | web only |
+| `192.168.1.5` | BedroomSwitch | Ubiquiti **EdgeSwitch 5XP** PoE (MAC `e0:63:da:…`) | L2 switch — UISP-managed | web only |
 | `192.168.1.10` | printer | **Canon** printer (MAC `9c:93:4e:…`) | Printing | — |
 | `192.168.1.13` | dvedenko-24.04-net | Ubuntu 24.04.4 (kernel 6.17) | Remote-access / VPN box | `dvedenko` |
 | `192.168.1.219` | U6-Lite | UniFi AP (DHCP) | Wi-Fi | — |

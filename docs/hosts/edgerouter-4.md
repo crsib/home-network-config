@@ -66,19 +66,22 @@ UniFi APs (U6-Lite, U6-Plus) broadcast these SSIDs, all mapped to the **untagged
 
 ## Switches (Layer 2)
 
-The router trunks the LAN to managed switches that aren't adopted by the UniFi
-**Network** controller on `.2` (EdgeSwitches are EdgeMAX gear — managed via their
-own web UI or **UISP**):
+The router trunks the LAN to managed switches. The two EdgeSwitches **are adopted
+in UISP** on `.2` (they're EdgeMAX gear — that's why the UniFi *Network* controller
+doesn't list them); the TP-Link is unmanaged (a "blackBox" node in UISP). Models /
+names confirmed via the UISP API 2026-06-14:
 
-| IP | Device | MAC OUI | Mgmt | SSH (key) | Notes |
-|----|--------|---------|------|-----------|-------|
-| `.4` | Ubiquiti **EdgeSwitch** | `18:e8:29` | `https://192.168.1.4` | **none** — `:22` closed (web-only) | Newer firmware (cert `CN=ubnt`) |
-| `.5` | Ubiquiti **EdgeSwitch** | `e0:63:da` | `https://192.168.1.5` | **no** — dropbear up but key auth rejected (password-only) | Older firmware (cert `CN=UBNT-<mac>`, dropbear 2016) |
-| `.3` | **TP-Link** managed switch | `b0:95:75` | `http://192.168.1.3` | n/a — no SSH | Web-managed only |
+| IP | Name (UISP) | Model | Ports | FW | MAC | Mgmt |
+|----|-------------|-------|-------|----|----|------|
+| `.4` | **MainSwitch** | Ubiquiti **EdgeSwitch 10X** | 10 (+8 LAGs) | 1.3.1 | `18:e8:29:47:21:4d` | UISP + `https://192.168.1.4` |
+| `.5` | **BedroomSwitch** | Ubiquiti **EdgeSwitch 5XP** (PoE) | 5 | 2.1.0 | `e0:63:da:e5:3b:3f` | UISP + `https://192.168.1.5` |
+| `.3` | — | **TP-Link** managed switch | — | — | `b0:95:75:b3:3f:00` | `http://192.168.1.3` only |
 
-> **None of the switches are SSH-key accessible** (verified 2026-06-14), so their
-> per-port VLAN profiles and exact models must be read from the **web UIs** (or
-> password SSH on `.5`). Capturing the port→VLAN map is a manual step.
+> **Per-port VLAN map still pending.** UISP reports the switches but **not** their
+> per-port VLAN assignments (the API returns `vlan=None` for every port). None of the
+> switches are SSH-key accessible (`.4` `:22` closed; `.5` dropbear is password-only;
+> `.3` no SSH), so the port→VLAN map must be read from the **web UIs** or a config
+> backup. This is the one remaining manual step for the L2 picture.
 
 ## Port-forwards (DNAT)
 
