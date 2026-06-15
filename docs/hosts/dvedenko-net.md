@@ -38,6 +38,35 @@ _Last verified: 2026-06-14._
   routing breaking conntrack on tunnel return traffic.
 - **Sipeed NanoKVM**: physically removed 2026-06-03 (flaky USB); replaced by RustDesk.
 
+## FortiClient hijacks inbound LAN DNS — `0x8` mark bypass
+
+_Verified 2026-06-15. Distinct from the UFW VPN-return fix above._
+
+FortiClient installs its own nftables (`fct_filter`, `fct_nat`, `fct_mangle`) at
+higher-priority hooks than UFW. Its transparent DNS interception in `fct_mangle`
+**PREROUTING** (priority `mangle` = −150) matches any UDP packet whose destination
+is a **local listening socket** (`xt match "socket"`), sets `meta mark 0x1`, then
+`ip rule 32765 (from all fwmark 0x1 lookup 100)` diverts it to FortiClient's own
+DNS proxy — which **drops inbound LAN queries**.
+
+- **Symptom:** `dig @192.168.1.13` works *locally* (arrives via `lo`/OUTPUT, skips
+  PREROUTING) but **times out from any remote LAN host**. `tcpdump` shows the query
+  arriving on `enp3s0` with **no reply and no UFW counter movement** — the packet is
+  hijacked in PREROUTING before reaching the `ip filter` INPUT chain. Affects **any**
+  daemon on `:53` (reproduced with both systemd-resolved's `DNSStubListenerExtra`
+  and dnsmasq); it is **not** a resolver limitation and is unrelated to Tailscale.
+- **Fix (persistent):** a separate nft table pre-marks inbound LAN DNS `0x8`
+  *before* `fct_mangle` runs; FortiClient's `FCT-UDP-STAGE-1` has
+  `mark and 0x8 == 0x8 accept`, so it leaves pre-marked packets alone.
+  - `/etc/nftables-lan-dns-fix.conf` — table `lan_dns_fix`, chain PREROUTING
+    `priority −200`: `iifname enp3s0 ip saddr 192.168.1.0/24 ip daddr 192.168.1.13
+    udp/tcp dport 53 meta mark set 0x8`.
+  - Loaded at boot by `lan-dns-fix.service` (oneshot, enabled). The table is
+    independent of `fct_*`, so FortiClient reconnects don't remove it; only a full
+    `nft flush ruleset` would — re-run the unit if that happens.
+- **Generalizes:** the same `0x8`-bypass works for **any** future LAN-facing UDP
+  service on `.13` that FortiClient's xt-socket match would otherwise hijack.
+
 ## Authoritative reference
 
 This box is the target of the **[forti-tray](../../../forti-tray)** Windows tray
