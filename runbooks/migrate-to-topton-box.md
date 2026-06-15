@@ -88,6 +88,29 @@ Configure while the ER-4 is still live, using a temporary management address:
    WAN2 down, clients lose v6 and fall back to v4 via Happy Eyeballs (no action needed).
 8. Export the **config XML** and store it off-box (rollback + ADR-0002 backup requirement).
 
+### 2a. Cross-VLAN mDNS (optional — Bonjour/Chromecast/AirPlay across VLANs)
+
+mDNS (`224.0.0.251:5353`) is **link-local multicast with TTL=1** — it never crosses an L3
+boundary, so a phone on the LAN can't discover a TV/Xbox on VLAN 2 by default. OPNsense can
+**reflect** mDNS between interfaces via the **`os-mdns-repeater`** plugin (Avahi reflector).
+This is **net-new** capability (the ER-4 never had it).
+
+1. **Install:** System → Firmware → Plugins → `os-mdns-repeater`.
+2. **Scope it to LAN ↔ VLAN 2 only.** Enable the reflector on the **LAN** and **Devices
+   (VLAN 2)** interfaces. **Do NOT include VLAN 3 (Guest)** — reflecting mDNS into Guest
+   broadcasts the service inventory to guests and defeats the isolation the VLAN exists for.
+3. **Open the follow-up unicast, not just discovery.** The reflector carries *discovery only*;
+   the session that follows is normal inter-VLAN unicast and dies under default-deny. Add
+   scoped firewall rules LAN↔VLAN 2 for the services in use (e.g. Chromecast `tcp 8008–8009`
+   + `tcp 8443`, AirPlay `tcp 7000/49152–65535` + `udp 5353`, IPP printing `tcp 631`).
+   Permit only what's needed, in the direction the client initiates — **not** an allow-all.
+4. **Trade-off:** any reflection partially punctures segmentation between the two bridged
+   VLANs. Acceptable for LAN↔Devices; the reason Guest stays out.
+
+> Finer-grained alternative: the per-port `mdns-repeater` daemon (or Avahi) on the Ubuntu
+> services VM instead of the router. Start with the native plugin; only reach for this if you
+> need per-service control.
+
 ## 3. Ubuntu services VM — base
 
 ```bash

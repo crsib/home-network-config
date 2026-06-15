@@ -66,6 +66,10 @@ both on `.2`.
   behind SSO via `*.ext.crsib.me` (Cloudflare DNS-01), then decommission zrok. Runbook:
   `runbooks/deploy-pangolin.md`. Not yet executed.
 - Drop stale `32400`/`51413` port-forwards (Plex/Transmission gone).
+- **Cross-VLAN mDNS** (optional, post-ADR-0002): no reflection today. On the new OPNsense
+  router use `os-mdns-repeater` (Avahi) scoped **LAN↔VLAN2 only** (Guest excluded) + scoped
+  inter-VLAN firewall rules for the follow-up unicast. Step 2a in
+  `runbooks/migrate-to-topton-box.md`; noted in `docs/services/dns.md`.
 
 _Earlier resolved: VLAN2="Devices"/VLAN3=Guest; port-forwards mapped; cert=certbot/nginx
 (not Cloudflare wildcard); vhosts (local→Nextcloud, headscale→:8081); sing-box gateway;

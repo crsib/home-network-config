@@ -32,6 +32,15 @@ the internet; there is **no network-wide ad-blocking or split-horizon DNS** toda
 - **TLS:** a Let's Encrypt wildcard for `local.crsib.me` (Cloudflare DNS-01) is
   served by nginx on `.2`. Cert observed: `CN=local.crsib.me`, issuer Let's Encrypt.
 
+## mDNS / service discovery across VLANs
+
+There is **no mDNS reflection today** — `.local` discovery (Bonjour, Chromecast,
+AirPlay) is confined to each VLAN's broadcast domain (TTL=1 link-local multicast).
+Post-migration, OPNsense can bridge it with the **`os-mdns-repeater`** (Avahi
+reflector) plugin, **scoped to LAN ↔ VLAN 2 only** (Guest excluded), with scoped
+inter-VLAN firewall rules for the follow-up unicast. See the optional step
+[2a in the migration runbook](../../runbooks/migrate-to-topton-box.md#2a-cross-vlan-mdns-optional--bonjourchromecastairplay-across-vlans).
+
 ## Corporate DNS (VPN-only)
 
 When the FortiClient `2GIS` tunnel is up on `.13`, corp resolvers
