@@ -23,7 +23,7 @@ Two of the three core hosts are being collapsed onto a single new machine:
 | Uplink | Address family | Notes |
 |--------|----------------|-------|
 | **WAN1** | Public IPv4 (`/28`, stable) | Today's primary; natural inbound primary. |
-| **WAN2** | Public IPv4 **+ IPv6** | Was disabled on the ER-4 (flaky failover). **Only WAN2 carries IPv6.** |
+| **WAN2** | Public IPv4 **+ IPv6** | Paid **static** v4, but **delivered via DHCP** (reserved lease) → configure the interface as a **DHCP client**; the address is stable in practice. Was disabled on the ER-4 (flaky failover). **Only WAN2 carries IPv6.** |
 
 Because WAN2 is publicly routable, **inbound failover is viable**. But since **IPv6 exists
 only on WAN2**, native v6 is only available while WAN2 is up — which shapes the dual-stack
@@ -192,8 +192,9 @@ stack; sing-box/Headscale/Nextcloud lift mostly as-is (Ubuntu → Ubuntu).
   than a disposable VPS.
 
 **To revisit:**
-- **WAN2 v4 static vs. dynamic** — public confirmed (so inbound failover is viable); if the
-  WAN2 v4 address is dynamic, the active-WAN DDNS updater must handle it.
+- **WAN2 v4** is paid-static but DHCP-delivered (reserved lease) → stable, so the active-WAN
+  DDNS for v4 is trivial. Verify the lease actually returns the same address. The **IPv6 PD
+  prefix may still be dynamic** even though v4 is reserved — confirm before publishing AAAA.
 - **IPv6 rollout** — deferred to a post-cutover phase: DHCPv6-PD on WAN2, per-VLAN `/64`s,
   strict v6 inbound firewall, then optionally AAAA-published services (dynamic-prefix DDNS,
   WAN2-up only).
@@ -206,7 +207,8 @@ stack; sing-box/Headscale/Nextcloud lift mostly as-is (Ubuntu → Ubuntu).
 See the migration runbook: [runbooks/migrate-to-topton-box.md](../../runbooks/migrate-to-topton-box.md).
 
 1. [ ] Confirm **IOMMU/VT-d** on the Topton (required for NIC passthrough).
-2. [ ] Confirm whether **WAN2's IPv4 is static or dynamic** (WAN2 public + IPv6 confirmed).
+2. [ ] WAN2 = paid-static v4 via **DHCP** (reserved lease) → set interface to DHCP client and
+       verify the lease returns the same IP; confirm whether the **IPv6 PD prefix** is stable.
 3. [ ] Install Proxmox; create OPNsense VM (WAN1+WAN2 passthrough) and Ubuntu services VM.
 4. [ ] OPNsense: dual-WAN gateway group + per-WAN probes; firewall/NAT; VLAN trunk;
        Unbound→NextDNS; DHCP advertising the local resolver.

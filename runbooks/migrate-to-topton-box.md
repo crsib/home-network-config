@@ -30,9 +30,10 @@ Topton box  →  Proxmox VE
 ## 0. Pre-flight (before touching anything)
 
 - [ ] **IOMMU/VT-d** present and enabled in Topton BIOS (needed for NIC passthrough).
-- [ ] **WAN2:** public IPv4 **+ IPv6** (confirmed) — inbound failover is viable. Check
-      whether WAN2's v4 is **static or dynamic** (affects the DDNS updater). **IPv6 is
-      WAN2-only.**
+- [ ] **WAN2:** public IPv4 **+ IPv6** (confirmed) — inbound failover is viable. v4 is
+      paid-**static but DHCP-delivered** (reserved lease) → configure as a **DHCP client**;
+      verify the lease returns the same IP. **IPv6 is WAN2-only**; check whether the PD
+      prefix is stable before publishing AAAA.
 - [ ] Map the **6× i226-V** ports to roles and label them physically:
       `WAN1`, `WAN2`, `LAN-trunk` (to the EdgeSwitches), spares.
 - [ ] Inventory `.2` one more time (compose dirs, volumes, certs):
@@ -58,8 +59,10 @@ Topton box  →  Proxmox VE
 
 Configure while the ER-4 is still live, using a temporary management address:
 
-1. **Interfaces:** WAN1, WAN2 (the passed-through NICs), LAN on the `vmbr0` vNIC
-   (`192.168.1.1/24` — same gateway IP as the ER-4, so clients don't change).
+1. **Interfaces:** WAN1, **WAN2 as a DHCP client** (paid-static but DHCP-delivered — the
+   reserved lease returns the same IP), LAN on the `vmbr0` vNIC (`192.168.1.1/24` — same
+   gateway IP as the ER-4, so clients don't change). For IPv6, set WAN2 to request a
+   **DHCPv6-PD** prefix.
 2. **VLANs (router-on-a-stick):** `VLAN 2 → 192.168.2.1/24`, `VLAN 3 → 192.168.3.1/24` on
    the LAN interface. Tagging stays at the EdgeSwitches — no switch changes.
 3. **Dual-WAN:** a **gateway group** with per-WAN **monitor IPs** (WAN1→`1.1.1.1`,
