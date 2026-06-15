@@ -206,7 +206,9 @@ stack; sing-box/Headscale/Nextcloud lift mostly as-is (Ubuntu → Ubuntu).
 
 See the migration runbook: [runbooks/migrate-to-topton-box.md](../../runbooks/migrate-to-topton-box.md).
 
-1. [ ] Confirm **IOMMU/VT-d** on the Topton (required for NIC passthrough).
+1. [ ] **IOMMU/VT-d** — evidence suggests it's supported; **confirm on the box once it
+       arrives** (BIOS toggle + `dmesg | grep -i -e DMAR -e IOMMU`). Required for NIC
+       passthrough. If absent, fall back to virtio-bridged WAN NICs instead of passthrough.
 2. [ ] WAN2 = paid-static v4 via **DHCP** (reserved lease) → set interface to DHCP client and
        verify the lease returns the same IP; confirm whether the **IPv6 PD prefix** is stable.
 3. [ ] Install Proxmox; create OPNsense VM (WAN1+WAN2 passthrough) and Ubuntu services VM.

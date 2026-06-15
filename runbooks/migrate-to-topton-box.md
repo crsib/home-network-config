@@ -29,7 +29,9 @@ Topton box  →  Proxmox VE
 
 ## 0. Pre-flight (before touching anything)
 
-- [ ] **IOMMU/VT-d** present and enabled in Topton BIOS (needed for NIC passthrough).
+- [ ] **IOMMU/VT-d** — likely supported (per specs); **verify once the box arrives**: enable
+      in BIOS, then `dmesg | grep -i -e DMAR -e IOMMU` under Proxmox. If unsupported, use
+      virtio-bridged WAN NICs instead of PCI passthrough (slightly less isolation/perf).
 - [ ] **WAN2:** public IPv4 **+ IPv6** (confirmed) — inbound failover is viable. v4 is
       paid-**static but DHCP-delivered** (reserved lease) → configure as a **DHCP client**;
       verify the lease returns the same IP. **IPv6 is WAN2-only**; check whether the PD
