@@ -1,5 +1,10 @@
 # Runbook: Deploy Pangolin (replace zrok)
 
+> ⚠️ **Superseded** by [migrate-to-topton-box.md](migrate-to-topton-box.md) /
+> [ADR-0002](../docs/decisions/0002-consolidate-controller-and-router.md) (2026-06-15):
+> VDSina is not being renewed, so Pangolin now runs **at home behind nginx** for ad-hoc
+> shares, not on the VPS for admin UIs. Kept for reference / rollback only.
+
 Implements [ADR-0001](../docs/decisions/0001-replace-zrok-with-pangolin.md). Stands up
 Pangolin on the VDSina VPS and exposes the three admin UIs behind SSO via a Newt
 connector on `home-controller` (`.2`).

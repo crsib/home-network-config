@@ -1,8 +1,14 @@
 # ADR-0001: Replace zrok with Pangolin for public admin-UI access
 
-**Status:** Accepted
+**Status:** Superseded by [ADR-0002](0002-consolidate-controller-and-router.md)
 **Date:** 2026-06-14
 **Deciders:** Dmitry (operator)
+
+> **Superseded 2026-06-15:** the VDSina VPS is not being renewed (and proved unreliable),
+> so Pangolin moves **home** onto the new Topton box, **behind nginx**, and is re-scoped to
+> occasional **zrok-style public shares** rather than exposing admin UIs (nginx fronts
+> those). The zrok→Pangolin *direction* below still holds; the **VPS+Newt topology** does
+> not. See [ADR-0002](0002-consolidate-controller-and-router.md).
 
 ## Context
 

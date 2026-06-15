@@ -5,9 +5,13 @@ copy-pasteable, and assumes the access in [docs/access.md](../docs/access.md).
 
 ## Index
 
-- **[deploy-pangolin.md](deploy-pangolin.md)** — stand up Pangolin on the VDSina VPS
-  + Newt connector on `.2` to publish the admin UIs behind SSO, replacing zrok
-  (implements [ADR-0001](../docs/decisions/0001-replace-zrok-with-pangolin.md)).
+- **[migrate-to-topton-box.md](migrate-to-topton-box.md)** — consolidate `.2` + the ER-4
+  onto the new Topton box (Proxmox + OPNsense VM + Ubuntu services VM); dual-WAN failover,
+  local DNS→NextDNS, Pangolin-behind-nginx, retire the ER-4 to a cold spare
+  (implements [ADR-0002](../docs/decisions/0002-consolidate-controller-and-router.md)).
+- **[deploy-pangolin.md](deploy-pangolin.md)** — _(superseded by the migration above)_
+  original VDSina-VPS + Newt deployment to publish admin UIs behind SSO, replacing zrok
+  (implemented [ADR-0001](../docs/decisions/0001-replace-zrok-with-pangolin.md)).
 
 Other good candidates:
 
